@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>60-Chord Roman Numeral Table</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 20px;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            padding: 25px 30px 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        h1 {
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin: 0 0 6px 0;
+            color: #1e293b;
+        }
+        .subtitle {
+            color: #475569;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 14px;
+            background: #f8fafc;
+            padding: 10px 16px;
+            border-radius: 0 8px 8px 0;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 12px;
+        }
+        .controls label {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 1rem;
+        }
+        .controls select {
+            padding: 10px 18px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 10px;
+            border: 1.5px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            outline: none;
+        }
+        .controls select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        .controls button {
+            padding: 10px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .controls button:hover {
+            background: #2563eb;
+        }
+        .current-key-display {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1e293b;
+            background: #e2e8f0;
+            padding: 4px 18px;
+            border-radius: 30px;
+        }
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        th {
+            background: #1e293b;
+            color: white;
+            padding: 14px 8px;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+        }
+        th:first-child { border-radius: 12px 0 0 0; }
+        th:last-child { border-radius: 0 12px 0 0; }
+        td {
+            padding: 12px 6px;
+            text-align: center;
+            border-bottom: 1px solid #eef2f6;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .root-note {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #0f172a;
+        }
+        .diatonic {
+            background-color: #eff6ff;
+        }
+        .diatonic .root-note {
+            color: #1d4ed8;
+        }
+        .diatonic:hover {
+            background-color: #dbeafe !important;
+        }
+        tr:not(.diatonic):hover {
+            background-color: #f8fafc;
+        }
+        .legend {
+            margin-top: 22px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 20px 30px;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .color-swatch {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 4px;
+        }
+        .footnote {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            td, th { padding: 8px 4px; font-size: 0.8rem; }
+            .controls { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎹 60‑Chord Roman Numeral Table</h1>
+    <div class="subtitle">
+        <strong>5 qualities</strong> × <strong>12 roots</strong> — UPPERCASE = Major, lowercase = minor.
+        <span style="background:#eff6ff; padding:0 8px; border-radius:4px;">Blue rows</span> = diatonic.
+    </div>
+
+    <div class="controls">
+        <label for="keySelect">Select Key:</label>
+        <select id="keySelect">
+            <option value="C">C</option>
+            <option value="Db">D♭</option>
+            <option value="D">D</option>
+            <option value="Eb">E♭</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="F#">F♯</option>
+            <option value="G">G</option>
+            <option value="Ab">A♭</option>
+            <option value="A">A</option>
+            <option value="Bb">B♭</option>
+            <option value="B">B</option>
+        </select>
+        <button type="button" id="applyBtn">Apply</button>
+        <span class="current-key-display" id="key-display">C</span>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Root</th>
+                    <th>Major</th>
+                    <th>Minor</th>
+                    <th>Dom 7th</th>
+                    <th>Aug</th>
+                    <th>Dim</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Generated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="legend">
+        <span class="legend-item"><span class="color-swatch"></span> Diatonic (in key)</span>
+        <span class="legend-item"><strong>I</strong> = Major</span>
+        <span class="legend-item"><strong>i</strong> = minor</span>
+        <span class="legend-item"><strong>⁷</strong> = Dom 7th</span>
+        <span class="legend-item"><strong>⁺</strong> = Aug</span>
+        <span class="legend-item"><strong>°</strong> = Dim</span>
+    </div>
+    <div class="footnote">
+        ♯IV / ♭V shows both enharmonic spellings. Click "Apply" to refresh the table with your selected key.
+    </div>
+</div>
+
+<!-- ====== REPLACED SCRIPT BLOCK (EXACTLY AS PERPLEXITY SUGGESTED) ====== -->
+<script>
+    var chromatic = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+    var upper = ["I", "♭II", "II", "♭III", "III", "IV", "♯IV", "V", "♭VI", "VI", "♭VII", "VII"];
+    var lower = ["i", "♭ii", "ii", "♭iii", "iii", "iv", "♯iv", "v", "♭vi", "vi", "♭vii", "vii"];
+    var diatonicSteps = [0, 2, 4, 5, 7, 9, 11];
+
+    var selectEl = document.getElementById('keySelect');
+    var displayEl = document.getElementById('key-display');
+    var tbody = document.getElementById('table-body');
+    var applyBtn = document.getElementById('applyBtn');
+
+    function rotateNotes(keyIndex) {
+        var result = [];
+        for (var i = 0; i < 12; i++) {
+            result.push(chromatic[(keyIndex + i) % 12]);
+        }
+        return result;
+    }
+
+    function buildTable(keyIndex) {
+        tbody.innerHTML = '';
+
+        var visibleNotes = rotateNotes(keyIndex);
+
+        for (var row = 0; row < 12; row++) {
+            var root = visibleNotes[row];
+            var d = row;
+            var isDiatonic = diatonicSteps.indexOf(d) !== -1;
+
+            var tr = document.createElement('tr');
+            if (isDiatonic) tr.className = 'diatonic';
+
+            var tdRoot = document.createElement('td');
+            tdRoot.textContent = root;
+            tdRoot.className = 'root-note';
+            tr.appendChild(tdRoot);
+
+            var major, minor, dom7, aug, dim;
+            if (d === 6) {
+                major = "♯IV / ♭V";
+                minor = "♯iv / ♭v";
+                dom7 = "♯IV⁷ / ♭V⁷";
+                aug = "♯IV⁺ / ♭V⁺";
+                dim = "♯iv° / ♭v°";
+            } else {
+                major = upper[d];
+                minor = lower[d];
+                dom7 = upper[d] + "⁷";
+                aug = upper[d] + "⁺";
+                dim = lower[d] + "°";
+            }
+
+            var cellData = [major, minor, dom7, aug, dim];
+            for (var c = 0; c < cellData.length; c++) {
+                var td = document.createElement('td');
+                td.textContent = cellData[c];
+                tr.appendChild(td);
+            }
+
+            tbody.appendChild(tr);
+        }
+    }
+
+    function updateKeyFromUI() {
+        var key = selectEl.value;
+        var idx = chromatic.indexOf(key);
+        var selectedLabel = selectEl.options[selectEl.selectedIndex].text;
+        displayEl.textContent = selectedLabel;
+        buildTable(idx);
+    }
+
+    applyBtn.addEventListener('click', updateKeyFromUI);
+
+    selectEl.value = 'C';
+    updateKeyFromUI();
+</script>
+</body>
+</html>
