@@ -27,13 +27,11 @@
     overflow: hidden; touch-action: none;
   }
 
-  /* Maximize vertical space */
   .app-container { 
     display: flex; flex-direction: column; 
     height: 100dvh; padding: 4px; gap: 4px;
   }
   
-  /* Compact Top Bar */
   header { 
     display: flex; align-items: center; gap: 6px; 
     background: var(--panel); padding: 4px 8px; 
@@ -55,8 +53,9 @@
   button:active { background: #444; }
   .danger { background: #c62828; border-color: #c62828; color: white; }
   .danger:active { background: #9a1c1c; }
+  .ble-btn { background: #0984e3; border-color: #0984e3; color: white; }
+  .ble-btn.connected { background: #2e7d32; border-color: #2e7d32; }
 
-  /* Manuals */
   .manuals-container { display: flex; flex-direction: column; flex-grow: 1; gap: 4px; min-height: 0; }
   
   .manual { 
@@ -65,7 +64,6 @@
     border: 1px solid #31363d;
   }
   
-  /* Compact Manual Headers */
   .manual-header { 
     display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-shrink: 0; 
     padding: 0 4px;
@@ -74,7 +72,6 @@
   .header-controls { display: flex; gap: 8px; align-items: center; font-size: 11px; color: #a8b0ba; }
   .header-controls select { padding: 2px 4px; font-size: 11px; }
   
-  /* The Piano */
   .keyboard { 
     position: relative; display: flex; flex-grow: 1; 
     border-radius: 6px; overflow: hidden; 
@@ -133,9 +130,9 @@
     
     <div class="spacer"></div>
 
-    <select id="midiOut"><option value="">None</option></select>
+    <select id="midiOut"><option value="">USB/Virtual</option></select>
     <button id="connect">Connect</button>
-    <button id="refresh" title="Refresh MIDI Ports">🔄</button>
+    <button id="bleConnect" class="ble-btn">🔵 BLE Connect</button>
     <button id="panic" class="danger">Panic</button>
   </header>
 
@@ -232,7 +229,49 @@ function stopSynthNote(midiNote) {
 }
 
 // ==========================================
-// 2. MIDI & KEYBOARD LOGIC
+// 2. BLUETOOTH MIDI (WEB BLUETOOTH API)
+// ==========================================
+const BLE_MIDI_SERVICE = '03b80e5a-ede8-4b33-a751-6ce34ec4c700';
+const BLE_MIDI_CHARACTERISTIC = '7772e5db-3868-4112-a1a9-f2669d106bf3';
+let bleDevice = null;
+let bleCharacteristic = null;
+
+document.getElementById('bleConnect').addEventListener('click', async () => {
+  if (!navigator.bluetooth) return alert('Web Bluetooth not supported on this browser.');
+  try {
+    bleDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [BLE_MIDI_SERVICE] }],
+      optionalServices: [BLE_MIDI_SERVICE]
+    });
+    
+    bleDevice.addEventListener('gattserverdisconnected', () => {
+      document.getElementById('bleConnect').classList.remove('connected');
+      document.getElementById('bleConnect').textContent = '🔵 BLE Connect';
+      bleCharacteristic = null;
+    });
+
+    const server = await bleDevice.gatt.connect();
+    const service = await server.getPrimaryService(BLE_MIDI_SERVICE);
+    bleCharacteristic = await service.getCharacteristic(BLE_MIDI_CHARACTERISTIC);
+    
+    document.getElementById('bleConnect').classList.add('connected');
+    document.getElementById('bleConnect').textContent = '🔵 BLE ✓';
+  } catch (err) {
+    console.error('BLE Error:', err);
+  }
+});
+
+function makeBleMidiPacket(bytes) {
+  const ts = performance.now() & 0x1fff;
+  const header = 0x80 | ((ts >> 7) & 0x3f);
+  const timestampLow = 0x80 | (ts & 0x7f);
+  const out = [header];
+  for (let i = 0; i < bytes.length; i++) out.push(timestampLow, bytes[i] & 0x7f);
+  return new Uint8Array(out);
+}
+
+// ==========================================
+// 3. WEB MIDI & KEYBOARD LOGIC
 // ==========================================
 const NUM_KEYS = 37; 
 const BLACK_SEMITONES = [1, 3, 6, 8, 10];
@@ -250,7 +289,6 @@ const manuals = [
 const midiOutSelect = document.getElementById('midiOut');
 
 document.getElementById('connect').addEventListener('click', () => requestMidi(true));
-document.getElementById('refresh').addEventListener('click', () => requestMidi(false));
 document.getElementById('panic').addEventListener('click', panic);
 
 document.querySelectorAll('.octave').forEach((sel, i) => {
@@ -269,7 +307,6 @@ manuals.forEach((manual, mIdx) => {
     if (!BLACK_SEMITONES.includes(i % 12)) whiteCount++;
   }
 
-  // Build White Keys
   for (let i = 0; i < NUM_KEYS; i++) {
     if (!BLACK_SEMITONES.includes(i % 12)) {
       const key = document.createElement('div');
@@ -285,7 +322,6 @@ manuals.forEach((manual, mIdx) => {
     }
   }
 
-  // Build Black Keys
   const whiteWidthPercent = 100 / whiteCount;
   const blackWidthPercent = whiteWidthPercent * 0.65;
 
@@ -309,7 +345,7 @@ manuals.forEach((manual, mIdx) => {
       key.dataset.semitone = i;
       key.style.left = leftPercent + '%';
       key.style.width = blackWidthPercent + '%';
-      key.style.height = '62%'; // Taller black keys
+      key.style.height = '62%'; 
       
       kb.appendChild(key);
     }
@@ -368,44 +404,27 @@ function panic() {
 }
 
 async function requestMidi(showAlert) {
-  if (!navigator.requestMIDIAccess) {
-    if (showAlert) alert('Web MIDI not supported in this browser.');
-    return;
-  }
+  if (!navigator.requestMIDIAccess) return;
   try {
     midiAccess = await navigator.requestMIDIAccess({ sysex: false });
     updatePorts();
-    
-    // This listens for Bluetooth devices connecting/disconnecting in the OS
     midiAccess.onstatechange = updatePorts;
-    
-    if (showAlert && midiAccess.outputs.size === 0) {
-      alert("No MIDI ports found. If using Bluetooth, pair the devices in your system settings first, then tap Refresh.");
-    }
-  } catch (err) { 
-    if (showAlert) alert('MIDI access denied.'); 
-  }
+  } catch (err) { }
 }
 
 function updatePorts() {
   if (!midiAccess) return;
-  
   const currentVal = midiOutSelect.value;
-  midiOutSelect.innerHTML = '<option value="">None</option>';
-  
-  let foundSelected = false;
+  midiOutSelect.innerHTML = '<option value="">USB/Virtual</option>';
   
   for (const out of midiAccess.outputs.values()) {
     const opt = document.createElement('option');
     opt.value = out.id;
     opt.textContent = out.name;
     midiOutSelect.appendChild(opt);
-    
-    if (out.id === currentVal) foundSelected = true;
   }
   
-  // Restore selection if it still exists
-  if (foundSelected) {
+  if (midiOutSelect.querySelector(`option[value="${currentVal}"]`)) {
     midiOutSelect.value = currentVal;
   } else {
     selectedOutput = null;
@@ -418,7 +437,15 @@ midiOutSelect.addEventListener('change', e => {
 });
 
 function sendMidi(status, data1, data2) {
-  if (selectedOutput) selectedOutput.send([status, data1, data2]);
+  // Send via Web MIDI (USB/Cable)
+  if (selectedOutput) {
+    selectedOutput.send([status, data1, data2]);
+  }
+  // Send via Web Bluetooth (BLE)
+  if (bleCharacteristic) {
+    const packet = makeBleMidiPacket([status, data1, data2]);
+    bleCharacteristic.writeValue(packet).catch(() => {});
+  }
 }
 </script>
 </body>
