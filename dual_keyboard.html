@@ -7,116 +7,79 @@
 
 <style>
   :root {
-    --bg: #121417;
-    --panel: #1c2026;
-    --text: #e8eaed;
+    --bg: #121417; --panel: #1c2026; --text: #e8eaed;
     --active: #ffcc4d;
-    
-    --white-top: #fdfdfd;
-    --white-bottom: #dcdcdc;
-    --black-top: #2a2a2a;
-    --black-bottom: #111111;
+    --white-top: #fdfdfd; --white-bottom: #dcdcdc;
+    --black-top: #2a2a2a; --black-bottom: #111111;
   }
-
   * { box-sizing: border-box; }
-  
   html, body {
     margin: 0; padding: 0; height: 100%;
     background: var(--bg); color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     overflow: hidden; touch-action: none;
   }
-
-  .app-container { 
-    display: flex; flex-direction: column; 
-    height: 100dvh; padding: 4px; gap: 4px;
-  }
+  .app-container { display: flex; flex-direction: column; height: 100dvh; padding: 4px; gap: 4px; }
   
   header { 
     display: flex; align-items: center; gap: 6px; 
-    background: var(--panel); padding: 4px 8px; 
-    border-radius: 8px; flex-shrink: 0;
-    border: 1px solid #31363d;
+    background: var(--panel); padding: 4px 8px; border-radius: 8px; 
+    flex-shrink: 0; border: 1px solid #31363d;
   }
-  
   .spacer { flex-grow: 1; }
-  
   .vol-control { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #a8b0ba; }
   input[type="range"] { width: 60px; accent-color: var(--active); }
-
   select, button { 
-    background: #121417; color: var(--text); 
-    border: 1px solid #444; border-radius: 6px; 
-    padding: 4px 8px; font-size: 12px; font-weight: 600;
+    background: #121417; color: var(--text); border: 1px solid #444; 
+    border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 600;
   }
   button { cursor: pointer; }
   button:active { background: #444; }
   .danger { background: #c62828; border-color: #c62828; color: white; }
-  .danger:active { background: #9a1c1c; }
   .ble-btn { background: #0984e3; border-color: #0984e3; color: white; }
   .ble-btn.connected { background: #2e7d32; border-color: #2e7d32; }
+  
+  /* Debug Console */
+  .debug-bar { 
+    background: #000; color: #0f0; font-family: monospace; font-size: 11px; 
+    padding: 4px 8px; border-radius: 4px; height: 24px; overflow: hidden;
+    white-space: nowrap; text-overflow: ellipsis; flex-shrink: 0;
+  }
 
   .manuals-container { display: flex; flex-direction: column; flex-grow: 1; gap: 4px; min-height: 0; }
-  
   .manual { 
     background: var(--panel); border-radius: 8px; padding: 4px; 
-    display: flex; flex-direction: column; flex: 1; min-height: 0;
-    border: 1px solid #31363d;
+    display: flex; flex-direction: column; flex: 1; min-height: 0; border: 1px solid #31363d;
   }
-  
-  .manual-header { 
-    display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-shrink: 0; 
-    padding: 0 4px;
-  }
+  .manual-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-shrink: 0; padding: 0 4px; }
   .manual-title { font-weight: 700; font-size: 12px; color: #a8b0ba; margin-right: auto; }
   .header-controls { display: flex; gap: 8px; align-items: center; font-size: 11px; color: #a8b0ba; }
   .header-controls select { padding: 2px 4px; font-size: 11px; }
   
   .keyboard { 
-    position: relative; display: flex; flex-grow: 1; 
-    border-radius: 6px; overflow: hidden; 
-    user-select: none; touch-action: none; 
-    background: #000;
+    position: relative; display: flex; flex-grow: 1; border-radius: 6px; 
+    overflow: hidden; user-select: none; touch-action: none; background: #000;
     box-shadow: inset 0 5px 10px rgba(0,0,0,0.5);
   }
-  
   .white-key { 
-    flex: 1; 
-    background: linear-gradient(to bottom, var(--white-top) 0%, var(--white-bottom) 100%);
-    border-right: 1px solid #999; 
-    border-bottom: 3px solid #bbb;
-    position: relative; 
-    border-radius: 0 0 4px 4px; 
-    z-index: 1;
+    flex: 1; background: linear-gradient(to bottom, var(--white-top) 0%, var(--white-bottom) 100%);
+    border-right: 1px solid #999; border-bottom: 3px solid #bbb;
+    position: relative; border-radius: 0 0 4px 4px; z-index: 1;
   }
   .white-key:last-child { border-right: none; }
-  
   .black-key { 
-    position: absolute; top: 0; 
-    background: linear-gradient(to bottom, var(--black-top) 0%, var(--black-bottom) 100%);
-    border-radius: 0 0 4px 4px; 
-    border-bottom: 3px solid #000;
-    z-index: 2; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6); 
-    pointer-events: auto; 
+    position: absolute; top: 0; background: linear-gradient(to bottom, var(--black-top) 0%, var(--black-bottom) 100%);
+    border-radius: 0 0 4px 4px; border-bottom: 3px solid #000; z-index: 2; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6); pointer-events: auto; 
   }
-  
-  .white-key.active { 
-    background: linear-gradient(to bottom, #ffebaa 0%, #ffcc4d 100%) !important; 
-    border-bottom-color: #d4a32e;
-  }
-  .black-key.active { 
-    background: linear-gradient(to bottom, #d4a32e 0%, #ffcc4d 100%) !important;
-    border-bottom-color: #997317;
-  }
+  .white-key.active { background: linear-gradient(to bottom, #ffebaa 0%, #ffcc4d 100%) !important; border-bottom-color: #d4a32e; }
+  .black-key.active { background: linear-gradient(to bottom, #d4a32e 0%, #ffcc4d 100%) !important; border-bottom-color: #997317; }
   
   .key-label { 
-    position: absolute; bottom: 6px; left: 50%; 
-    transform: translateX(-50%); font-size: 10px; 
-    color: #888; pointer-events: none; font-weight: 600;
+    position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); 
+    font-size: 10px; color: #888; pointer-events: none; font-weight: 600;
   }
   .key-label:not(.show-label) { display: none; }
-  
 </style>
 </head>
 <body>
@@ -127,14 +90,14 @@
       <span>🔊</span>
       <input type="range" id="volSlider" min="0" max="1" step="0.01" value="0.3">
     </div>
-    
     <div class="spacer"></div>
-
     <select id="midiOut"><option value="">USB/Virtual</option></select>
     <button id="connect">Connect</button>
     <button id="bleConnect" class="ble-btn">🔵 BLE Connect</button>
     <button id="panic" class="danger">Panic</button>
   </header>
+
+  <div class="debug-bar" id="debugBar">System ready...</div>
 
   <div class="manuals-container">
     <section class="manual" id="lowerManual">
@@ -162,6 +125,11 @@
 </div>
 
 <script>
+const debugBar = document.getElementById('debugBar');
+function logDebug(msg) {
+  debugBar.textContent = msg;
+}
+
 // ==========================================
 // 1. LOCAL SYNTH ENGINE
 // ==========================================
@@ -186,45 +154,28 @@ function initAudio() {
 function playSynthNote(midiNote, velocity) {
   initAudio();
   if (activeVoices.has(midiNote)) stopSynthNote(midiNote);
-
   const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
   const osc1 = audioCtx.createOscillator();
   const osc2 = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-  
-  osc1.type = 'triangle';
-  osc2.type = 'sine';
-  osc1.frequency.value = freq;
-  osc2.frequency.value = freq * 2; 
-
+  osc1.type = 'triangle'; osc2.type = 'sine';
+  osc1.frequency.value = freq; osc2.frequency.value = freq * 2; 
   const now = audioCtx.currentTime;
-  const peakVol = (velocity / 127) * 0.8;
-
   gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(peakVol, now + 0.02);
-
-  osc1.connect(gain);
-  osc2.connect(gain);
-  gain.connect(masterGain);
-
-  osc1.start(now);
-  osc2.start(now);
-
+  gain.gain.linearRampToValueAtTime((velocity / 127) * 0.8, now + 0.02);
+  osc1.connect(gain); osc2.connect(gain); gain.connect(masterGain);
+  osc1.start(now); osc2.start(now);
   activeVoices.set(midiNote, { osc1, osc2, gain });
 }
 
 function stopSynthNote(midiNote) {
   if (!activeVoices.has(midiNote) || !audioCtx) return;
-  
   const voice = activeVoices.get(midiNote);
   const now = audioCtx.currentTime;
-  
   voice.gain.gain.cancelScheduledValues(now);
   voice.gain.gain.setValueAtTime(voice.gain.gain.value, now);
   voice.gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-  
-  voice.osc1.stop(now + 0.35);
-  voice.osc2.stop(now + 0.35);
+  voice.osc1.stop(now + 0.35); voice.osc2.stop(now + 0.35);
   activeVoices.delete(midiNote);
 }
 
@@ -237,8 +188,9 @@ let bleDevice = null;
 let bleCharacteristic = null;
 
 document.getElementById('bleConnect').addEventListener('click', async () => {
-  if (!navigator.bluetooth) return alert('Web Bluetooth not supported on this browser.');
+  if (!navigator.bluetooth) return logDebug('Web Bluetooth not supported.');
   try {
+    logDebug('Scanning for BLE devices...');
     bleDevice = await navigator.bluetooth.requestDevice({
       filters: [{ services: [BLE_MIDI_SERVICE] }],
       optionalServices: [BLE_MIDI_SERVICE]
@@ -248,26 +200,29 @@ document.getElementById('bleConnect').addEventListener('click', async () => {
       document.getElementById('bleConnect').classList.remove('connected');
       document.getElementById('bleConnect').textContent = '🔵 BLE Connect';
       bleCharacteristic = null;
+      logDebug('BLE Disconnected.');
     });
 
+    logDebug('Connecting to GATT server...');
     const server = await bleDevice.gatt.connect();
     const service = await server.getPrimaryService(BLE_MIDI_SERVICE);
     bleCharacteristic = await service.getCharacteristic(BLE_MIDI_CHARACTERISTIC);
     
     document.getElementById('bleConnect').classList.add('connected');
     document.getElementById('bleConnect').textContent = '🔵 BLE ✓';
+    logDebug('BLE Connected Successfully!');
   } catch (err) {
-    console.error('BLE Error:', err);
+    logDebug('BLE Error: ' + err.message);
   }
 });
 
+// EXACT Apple-compliant BLE MIDI packet
 function makeBleMidiPacket(bytes) {
   const ts = performance.now() & 0x1fff;
   const header = 0x80 | ((ts >> 7) & 0x3f);
-  const timestampLow = 0x80 | (ts & 0x7f);
-  const out = [header];
-  for (let i = 0; i < bytes.length; i++) out.push(timestampLow, bytes[i] & 0x7f);
-  return new Uint8Array(out);
+  const tsLow = 0x80 | (ts & 0x7f);
+  // Format: [Header, Timestamp, Status, Data1, Data2]
+  return new Uint8Array([header, tsLow, ...bytes]);
 }
 
 // ==========================================
@@ -301,7 +256,6 @@ document.querySelectorAll('.channel').forEach((sel, i) => {
 manuals.forEach((manual, mIdx) => {
   const kb = manual.element;
   kb.innerHTML = '';
-  
   let whiteCount = 0;
   for (let i = 0; i < NUM_KEYS; i++) {
     if (!BLACK_SEMITONES.includes(i % 12)) whiteCount++;
@@ -312,11 +266,9 @@ manuals.forEach((manual, mIdx) => {
       const key = document.createElement('div');
       key.className = 'white-key';
       key.dataset.semitone = i;
-      
       const noteName = NOTE_NAMES[i % 12];
       const pitchOctave = Math.floor(((manual.octave + 4) * 12 + i) / 12) - 1;
       const isC = noteName === 'C';
-      
       key.innerHTML = `<div class="key-label ${isC ? 'show-label' : ''}">${noteName}${isC ? pitchOctave : ''}</div>`;
       kb.appendChild(key);
     }
@@ -329,7 +281,6 @@ manuals.forEach((manual, mIdx) => {
     const semitone = i % 12;
     if (BLACK_SEMITONES.includes(semitone)) {
       const octave = Math.floor(i / 12);
-      
       let whiteIndexInOctave = 0;
       if (semitone === 1) whiteIndexInOctave = 0;
       else if (semitone === 3) whiteIndexInOctave = 1;
@@ -346,7 +297,6 @@ manuals.forEach((manual, mIdx) => {
       key.style.left = leftPercent + '%';
       key.style.width = blackWidthPercent + '%';
       key.style.height = '62%'; 
-      
       kb.appendChild(key);
     }
   }
@@ -373,7 +323,6 @@ function handlePointer(e, mIdx) {
   }
 
   keyElement.classList.add('active');
-  
   playSynthNote(midiNote, 100);
   sendMidi(0x90 | manual.channel, midiNote, 100);
   activePointers.set(e.pointerId, { midiNote, element: keyElement, mIdx });
@@ -382,11 +331,9 @@ function handlePointer(e, mIdx) {
 function releasePointer(pointerId) {
   if (!activePointers.has(pointerId)) return;
   const { midiNote, element, mIdx } = activePointers.get(pointerId);
-  
   element.classList.remove('active');
   stopSynthNote(midiNote);
   sendMidi(0x80 | manuals[mIdx].channel, midiNote, 0);
-  
   activePointers.delete(pointerId);
 }
 
@@ -401,6 +348,7 @@ function panic() {
   document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
   activePointers.clear();
   activeVoices.forEach((voice, note) => stopSynthNote(note));
+  logDebug('Panic sent.');
 }
 
 async function requestMidi(showAlert) {
@@ -416,14 +364,12 @@ function updatePorts() {
   if (!midiAccess) return;
   const currentVal = midiOutSelect.value;
   midiOutSelect.innerHTML = '<option value="">USB/Virtual</option>';
-  
   for (const out of midiAccess.outputs.values()) {
     const opt = document.createElement('option');
     opt.value = out.id;
     opt.textContent = out.name;
     midiOutSelect.appendChild(opt);
   }
-  
   if (midiOutSelect.querySelector(`option[value="${currentVal}"]`)) {
     midiOutSelect.value = currentVal;
   } else {
@@ -437,14 +383,29 @@ midiOutSelect.addEventListener('change', e => {
 });
 
 function sendMidi(status, data1, data2) {
-  // Send via Web MIDI (USB/Cable)
+  let sent = false;
+  
+  // 1. Send via Web MIDI (USB)
   if (selectedOutput) {
     selectedOutput.send([status, data1, data2]);
+    sent = true;
   }
-  // Send via Web Bluetooth (BLE)
+  
+  // 2. Send via Web Bluetooth
   if (bleCharacteristic) {
     const packet = makeBleMidiPacket([status, data1, data2]);
-    bleCharacteristic.writeValue(packet).catch(() => {});
+    bleCharacteristic.writeValue(packet)
+      .then(() => {
+        if (status === 0x90) logDebug(`BLE Sent Note: ${data1} (Vel: ${data2})`);
+      })
+      .catch(err => {
+        logDebug(`BLE Write Error: ${err.message}`);
+      });
+    sent = true;
+  }
+
+  if (!sent && status === 0x90) {
+    logDebug('Note played locally. No MIDI output selected.');
   }
 }
 </script>
