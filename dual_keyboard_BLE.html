@@ -134,7 +134,7 @@ input[type="range"] {
   flex-shrink: 0;
   padding: 0 2px;
   margin-bottom: 2px;
-  cursor: grab; /* Indicates it can be dragged to scroll */
+  cursor: grab;
 }
 
 .manual-header:active {
@@ -165,9 +165,9 @@ input[type="range"] {
 .keyboard-scroll {
   overflow-x: auto;
   overflow-y: hidden;
-  display: flex;
   flex: 1;
   min-height: 0;
+  width: 100%;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -196,8 +196,9 @@ input[type="range"] {
 
 .white-key {
   position: relative;
-  flex: 0 0 48px; /* Fixed width for scrolling */
+  flex: 0 0 48px;
   width: 48px;
+  height: 100%;
   background: linear-gradient(#fff, #e0e0e0);
   border-right: 1px solid #999;
   border-bottom: 4px solid #aaa;
@@ -726,14 +727,18 @@ const WHITE_KEY_WIDTH = 48; // Matches CSS
 
 function updateLabels(manual) {
   const keyboard = manual.root.querySelector(".keyboard");
+  if (!keyboard) return;
   for (const key of keyboard.querySelectorAll(".white-key")) {
     const note = 48 + 12 * manual.octave + Number(key.dataset.semitone);
-    key.firstChild.textContent = note % 12 === 0 ? "C" + (Math.floor(note / 12) - 1) : "";
+    if (key.firstChild) {
+      key.firstChild.textContent = note % 12 === 0 ? "C" + (Math.floor(note / 12) - 1) : "";
+    }
   }
 }
 
 function buildKeyboard(manual) {
   const keyboard = manual.root.querySelector(".keyboard");
+  if (!keyboard) return;
   keyboard.innerHTML = ""; 
   
   let whiteCount = 0;
@@ -759,7 +764,6 @@ function buildKeyboard(manual) {
     if (key.classList.contains("white-key")) {
       precedingWhites++;
     } else {
-      // Calculate black key positions based on fixed pixel width
       key.style.left = ((precedingWhites - 0.325) * WHITE_KEY_WIDTH) + "px";
       key.style.width = (WHITE_KEY_WIDTH * 0.65) + "px";
     }
@@ -768,9 +772,115 @@ function buildKeyboard(manual) {
   updateLabels(manual);
 }
 
-manuals.forEach((manual, manualIndex) => {
-  const scrollContainer = manual.root.querySelector(".keyboard-scroll");
-  const keyboard = manual.root.querySelector(".keyboard");
-  const header = manual.root.querySelector(".manual-header");
-  
-  const octaveSelect = manual.root.querySelector(".octa
+// Ensure DOM is fully loaded before initializing keyboards
+window.addEventListener("DOMContentLoaded", () => {
+  manuals.forEach((manual, manualIndex) => {
+    const scrollContainer = manual.root.querySelector(".keyboard-scroll");
+    const keyboard = manual.root.querySelector(".keyboard");
+    const header = manual.root.querySelector(".manual-header");
+    
+    const octaveSelect = manual.root.querySelector(".octave");
+    const channelSelect = manual.root.querySelector(".channel");
+    const keyCountSelect = manual.root.querySelector(".keyCount");
+
+    if (!octaveSelect || !channelSelect || !keyCountSelect || !keyboard) return;
+
+    for (let octave = -2; octave <= 2; octave++) {
+      octaveSelect.add(new Option(octave > 0 ? "+" + octave : String(octave), octave));
+    }
+    octaveSelect.value = manual.octave;
+
+    for (let channel = 0; channel < 16; channel++) {
+      channelSelect.add(new Option(channel + 1, channel));
+    }
+    channelSelect.value = manual.channel;
+    keyCountSelect.value = manual.keyCount;
+
+    buildKeyboard(manual);
+
+    keyCountSelect.addEventListener("change", () => {
+      panic();
+      manual.keyCount = Number(keyCountSelect.value);
+      buildKeyboard(manual);
+    });
+
+    octaveSelect.addEventListener("change", () => {
+      panic();
+      manual.octave = Number(octaveSelect.value);
+      updateLabels(manual);
+    });
+
+    channelSelect.addEventListener("change", () => {
+      panic();
+      manual.channel = Number(channelSelect.value);
+    });
+
+    keyboard.addEventListener("contextmenu", e => e.preventDefault());
+
+    // Drag the header to pan the keyboard
+    let isDraggingHeader = false;
+    let headerStartX = 0;
+    let headerScrollStart = 0;
+
+    header.addEventListener("pointerdown", e => {
+      if (e.target.closest("select") || e.target.closest("button")) return;
+      isDraggingHeader = true;
+      headerStartX = e.clientX;
+      headerScrollStart = scrollContainer.scrollLeft;
+      header.setPointerCapture(e.pointerId);
+    });
+
+    header.addEventListener("pointermove", e => {
+      if (!isDraggingHeader) return;
+      e.preventDefault();
+      const dx = e.clientX - headerStartX;
+      scrollContainer.scrollLeft = headerScrollStart - dx;
+    });
+
+    const endHeaderDrag = (e) => {
+      if (!isDraggingHeader) return;
+      isDraggingHeader = false;
+      header.releasePointerCapture(e.pointerId);
+    };
+
+    header.addEventListener("pointerup", endHeaderDrag);
+    header.addEventListener("pointercancel", endHeaderDrag);
+
+    function movePointer(event) {
+      const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".key");
+      const key = target && keyboard.contains(target) ? target : null;
+
+      if (activePointers.get(event.pointerId) === key) return;
+
+      stopNote(event.pointerId);
+      activePointers.set(event.pointerId, key);
+
+      if (key) startNote(event.pointerId, key, manualIndex);
+    }
+
+    keyboard.addEventListener("pointerdown", event => {
+      event.preventDefault();
+      initAudio();
+      keyboard.setPointerCapture(event.pointerId);
+      activePointers.set(event.pointerId, null);
+      movePointer(event);
+    }, { passive: false });
+
+    keyboard.addEventListener("pointermove", event => {
+      if (!activePointers.has(event.pointerId)) return;
+      event.preventDefault();
+      movePointer(event);
+    }, { passive: false });
+
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(evtName => {
+      keyboard.addEventListener(evtName, event => {
+        stopNote(event.pointerId);
+        activePointers.delete(event.pointerId);
+      });
+    });
+  });
+});
+</script>
+
+</body>
+</html>
