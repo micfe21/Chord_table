@@ -5,257 +5,244 @@
 <meta name="viewport"
       content="width=device-width, initial-scale=1">
 
-<title>Dual Manual Piano — Compact</title>
+<title>Dual Manual Piano — Compact V3</title>
 
 <style>
-  :root {
-    --background: #121417;
-    --panel: #1c2026;
-    --text: #e8eaed;
-    --active: #ffcc4d;
-  }
+/* All styling belongs inside this style block. */
 
-  * {
-    box-sizing: border-box;
-  }
+* {
+  box-sizing: border-box;
+}
 
-  html, body {
-    margin: 0;
-    height: 100%;
-    background: var(--background);
-    color: var(--text);
-    font-family: system-ui, sans-serif;
-    overflow: hidden;
-  }
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #121417;
+  color: #e8eaed;
+  font-family: system-ui, sans-serif;
+}
 
-  .app {
-    height: 100vh;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    padding: 3px;
-    gap: 3px;
-  }
+.app {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 3px;
+}
 
-  .toolbar {
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 5px;
-    flex-shrink: 0;
-    padding: 3px 5px;
-    border: 1px solid #343a43;
-    border-radius: 7px;
-    background: var(--panel);
-  }
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 3px 5px;
+  background: #1c2026;
+  border: 1px solid #343a43;
+  border-radius: 7px;
+}
 
-  .spacer {
-    flex: 1;
-  }
+.spacer {
+  flex: 1;
+}
 
-  button, select {
-    background: #12171d;
-    color: var(--text);
-    border: 1px solid #49515d;
-    border-radius: 5px;
-    font: 600 11px system-ui, sans-serif;
-    padding: 5px 8px;
-  }
+button, select {
+  padding: 5px 8px;
+  border: 1px solid #49515d;
+  border-radius: 5px;
+  background: #12171d;
+  color: #eee;
+  font: 600 11px system-ui, sans-serif;
+}
 
-  button {
-    cursor: pointer;
-    white-space: nowrap;
-  }
+button {
+  cursor: pointer;
+  white-space: nowrap;
+}
 
-  button:disabled {
-    opacity: 0.65;
-  }
+button:disabled {
+  opacity: 0.65;
+}
 
-  #pianoButton {
-    background: #69501a;
-    border-color: #a77f28;
-  }
+#pianoButton {
+  background: #69501a;
+}
 
-  #bleButton {
-    background: #0869a8;
-    border-color: #138bda;
-  }
+#bleButton {
+  background: #0869a8;
+}
 
-  #bleButton.connected {
-    background: #287334;
-    border-color: #3d9a4b;
-  }
+#bleButton.connected {
+  background: #287334;
+}
 
-  #panicButton {
-    background: #ae2727;
-    border-color: #d34141;
-  }
+#panicButton {
+  background: #ae2727;
+}
 
-  #status {
-    height: 18px;
-    min-height: 18px;
-    flex-shrink: 0;
-    padding: 2px 5px;
-    border-radius: 4px;
-    background: #000;
-    color: #a4efa4;
-    font: 10px/14px monospace;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+#status {
+  height: 18px;
+  min-height: 18px;
+  flex-shrink: 0;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: black;
+  color: #a4efa4;
+  font: 10px/14px monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-  #settings {
-    flex-shrink: 0;
-    max-height: 35vh;
-    overflow: auto;
-    background: var(--panel);
-    border: 1px solid #343a43;
-    border-radius: 6px;
-    padding: 8px;
-  }
+#settings {
+  flex-shrink: 0;
+  max-height: 35vh;
+  overflow: auto;
+  padding: 8px;
+  background: #1c2026;
+  border: 1px solid #343a43;
+  border-radius: 6px;
+}
 
-  #settings[hidden] {
-    display: none;
-  }
+#settings[hidden] {
+  display: none;
+}
 
-  .settings-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 16px;
-  }
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
 
-  .settings-row + .settings-row {
-    margin-top: 9px;
-  }
+.settings-row + .settings-row {
+  margin-top: 9px;
+}
 
-  label {
-    white-space: nowrap;
-    font-size: 11px;
-  }
+label {
+  white-space: nowrap;
+  font-size: 11px;
+}
 
-  input[type="range"] {
-    width: 95px;
-    vertical-align: middle;
-    accent-color: var(--active);
-  }
+input[type="range"] {
+  width: 95px;
+  vertical-align: middle;
+  accent-color: #ffcc4d;
+}
 
-  .hint {
-    margin-top: 7px;
-    color: #aeb7c3;
-    font-size: 10px;
-  }
+.hint {
+  margin-top: 7px;
+  color: #aeb7c3;
+  font-size: 10px;
+}
 
-  #midiOutput {
-    max-width: 230px;
-  }
+#midiOutput {
+  max-width: 230px;
+}
 
-  .manual {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 3px;
-    border: 1px solid #343a43;
-    border-radius: 7px;
-    background: var(--panel);
-  }
+.manual {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px;
+  background: #1c2026;
+  border: 1px solid #343a43;
+  border-radius: 7px;
+}
 
-  .manual-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 21px;
-    flex-shrink: 0;
-    padding: 0 3px;
-  }
+.manual-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 21px;
+  flex-shrink: 0;
+  padding: 0 3px;
+}
 
-  .manual-title {
-    margin-right: auto;
-    color: #b3bcc8;
-    font-size: 10px;
-    font-weight: 700;
-  }
+.manual-title {
+  margin-right: auto;
+  color: #b3bcc8;
+  font-size: 10px;
+  font-weight: 700;
+}
 
-  .manual-header label {
-    color: #b3bcc8;
-    font-size: 10px;
-  }
+.manual-header label {
+  color: #b3bcc8;
+  font-size: 10px;
+}
 
-  .manual-header select {
-    padding: 1px 3px;
-    font-size: 10px;
-  }
+.manual-header select {
+  padding: 1px 3px;
+  font-size: 10px;
+}
 
-  .keyboard {
-    position: relative;
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-    border-radius: 5px;
-    background: #000;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-  }
+.keyboard {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 5px;
+  background: black;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
 
-  .key {
-    touch-action: none;
-  }
+.key {
+  touch-action: none;
+}
 
-  .white-key {
-    position: relative;
-    flex: 1;
-    min-width: 0;
-    background: linear-gradient(#fdfdfd, #dcdcdc);
-    border-right: 1px solid #999;
-    border-bottom: 3px solid #bbb;
-    border-radius: 0 0 4px 4px;
-  }
+.white-key {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  background: linear-gradient(#fdfdfd, #dcdcdc);
+  border-right: 1px solid #999;
+  border-bottom: 3px solid #bbb;
+  border-radius: 0 0 4px 4px;
+}
 
-  .black-key {
-    position: absolute;
-    top: 0;
-    height: 62%;
-    z-index: 2;
-    background: linear-gradient(#303030, #080808);
-    border-bottom: 3px solid #000;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 4px 5px #0008;
-  }
+.black-key {
+  position: absolute;
+  top: 0;
+  height: 62%;
+  z-index: 2;
+  background: linear-gradient(#303030, #080808);
+  border-bottom: 3px solid black;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 5px #0008;
+}
 
-  .key.active {
-    background: linear-gradient(#ffe8a5, #ffc139);
-    border-bottom-color: #c99521;
-  }
+.key.active {
+  background: linear-gradient(#ffe8a5, #ffc139);
+  border-bottom-color: #c99521;
+}
 
-  .key-label {
-    position: absolute;
-    bottom: 5px;
-    left: 4px;
-    color: #888;
-    font-size: 9px;
-    pointer-events: none;
-  }
+.key-label {
+  position: absolute;
+  bottom: 5px;
+  left: 4px;
+  color: #888;
+  font-size: 9px;
+  pointer-events: none;
+}
 </style>
 </head>
 
 <body>
 <div class="app">
 
-  <!-- Always-visible performance controls -->
   <header class="toolbar">
     <button id="pianoButton">Load piano</button>
-
     <div class="spacer"></div>
-
     <button id="bleButton">BLE Connect</button>
     <button id="panicButton">Panic</button>
-
     <button id="settingsButton"
             aria-expanded="false"
             aria-controls="settings">
@@ -263,15 +250,12 @@
     </button>
   </header>
 
-  <!-- Hidden until Settings is tapped -->
   <div id="settings" hidden>
     <div class="settings-row">
       <label>
         Master
-        <input id="masterVolume"
-               type="range"
-               min="0" max="1"
-               step="0.01" value="0.5">
+        <input id="masterVolume" type="range"
+               min="0" max="1" step="0.01" value="0.5">
       </label>
 
       <label>
@@ -289,38 +273,38 @@
     <div class="settings-row">
       <label>
         Lower volume
-        <input id="lowerVolume"
-               type="range"
-               min="0" max="2"
-               step="0.05" value="1.5">
+        <input id="lowerVolume" type="range"
+               min="0" max="2" step="0.05" value="1.5">
         <span id="lowerValue">150%</span>
       </label>
 
       <label>
         Upper volume
-        <input id="upperVolume"
-               type="range"
-               min="0" max="2"
-               step="0.05" value="1">
+        <input id="upperVolume" type="range"
+               min="0" max="2" step="0.05" value="1">
         <span id="upperValue">100%</span>
       </label>
     </div>
 
     <div class="hint">
-      Volume controls affect tablet audio, not outgoing MIDI.
+      Compact V3. Volume changes affect tablet audio only.
       Piano samples require internet access.
     </div>
   </div>
 
   <div id="status">
-    Ready. Tap Load piano for sampled piano sound.
+    Compact V3 ready. Tap Load piano.
   </div>
 
   <section class="manual" id="lowerManual">
     <div class="manual-header">
       <div class="manual-title">LOWER</div>
-      <label>Oct <select class="octave"></select></label>
-      <label>Ch <select class="channel"></select></label>
+      <label>
+        Oct <select class="octave" aria-label="Lower octave"></select>
+      </label>
+      <label>
+        Ch <select class="channel" aria-label="Lower channel"></select>
+      </label>
     </div>
     <div class="keyboard"></div>
   </section>
@@ -328,8 +312,12 @@
   <section class="manual" id="upperManual">
     <div class="manual-header">
       <div class="manual-title">UPPER</div>
-      <label>Oct <select class="octave"></select></label>
-      <label>Ch <select class="channel"></select></label>
+      <label>
+        Oct <select class="octave" aria-label="Upper octave"></select>
+      </label>
+      <label>
+        Ch <select class="channel" aria-label="Upper channel"></select>
+      </label>
     </div>
     <div class="keyboard"></div>
   </section>
@@ -362,9 +350,7 @@ const manuals = [
   }
 ];
 
-// ==========================================
 // SETTINGS
-// ==========================================
 
 $("settingsButton").addEventListener("click", () => {
   const panel = $("settings");
@@ -379,9 +365,7 @@ $("settingsButton").addEventListener("click", () => {
   );
 });
 
-// ==========================================
-// AUDIO
-// ==========================================
+// LOCAL AUDIO
 
 let audioContext = null;
 let masterGain = null;
@@ -448,7 +432,7 @@ $("masterVolume").addEventListener("input", event => {
   });
 });
 
-function loadSoundfontLibrary() {
+function loadPianoLibrary() {
   if (window.Soundfont) return Promise.resolve();
 
   return new Promise((resolve, reject) => {
@@ -485,12 +469,11 @@ $("pianoButton").addEventListener("click", async () => {
   pianoLoading = true;
   $("pianoButton").disabled = true;
   $("pianoButton").textContent = "Loading...";
-  log("Downloading piano samples. Synth fallback remains playable.");
+  log("Downloading piano samples. Synth remains playable.");
 
   try {
-    await loadSoundfontLibrary();
+    await loadPianoLibrary();
 
-    // Each manual has a separate player and volume bus.
     const players = await Promise.all(
       manuals.map(manual =>
         Soundfont.instrument(
@@ -507,12 +490,11 @@ $("pianoButton").addEventListener("click", async () => {
     );
 
     pianoPlayers = players;
-
     $("pianoButton").textContent = "Piano ready";
     log("Grand piano ready. Volume balance is in Settings.");
   } catch (error) {
     $("pianoButton").textContent = "Retry piano";
-    log("Piano failed: " + error.message + ". Synth fallback active.");
+    log("Piano failed: " + error.message + ". Synth active.");
   } finally {
     pianoLoading = false;
     $("pianoButton").disabled = false;
@@ -534,7 +516,7 @@ function createVoice(note, manualIndex) {
     return () => voice.stop();
   }
 
-  // Lightweight fallback if piano samples are not loaded.
+  // Simple fallback while piano samples are unavailable.
   const osc1 = audioContext.createOscillator();
   const osc2 = audioContext.createOscillator();
   const gain = audioContext.createGain();
@@ -574,9 +556,7 @@ function createVoice(note, manualIndex) {
   };
 }
 
-// ==========================================
 // MIDI OUTPUT
-// ==========================================
 
 let midiAccess = null;
 let selectedOutput = null;
@@ -604,7 +584,6 @@ function sendMidi(status, data1, data2) {
   const characteristic = bleCharacteristic;
   if (!characteristic) return;
 
-  // Keep BLE writes in order and avoid concurrent GATT writes.
   bleQueue = bleQueue.then(async () => {
     if (characteristic !== bleCharacteristic) return;
 
@@ -723,6 +702,7 @@ $("bleButton").addEventListener("click", async () => {
       "gattserverdisconnected",
       () => {
         bleCharacteristic = null;
+
         $("bleButton").textContent = "BLE Connect";
         $("bleButton").classList.remove("connected");
 
@@ -752,7 +732,7 @@ $("bleButton").addEventListener("click", async () => {
     $("bleButton").textContent = "BLE connected";
     $("bleButton").classList.add("connected");
 
-    log("BLE MIDI output connected. Tap BLE connected to disconnect.");
+    log("BLE output connected. Tap BLE connected to disconnect.");
   } catch (error) {
     bleCharacteristic = null;
 
@@ -766,9 +746,7 @@ $("bleButton").addEventListener("click", async () => {
   }
 });
 
-// ==========================================
 // NOTE TRACKING
-// ==========================================
 
 const activeNotes = new Map();
 const activePointers = new Map();
@@ -861,9 +839,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) panic();
 });
 
-// ==========================================
-// BUILD BOTH KEYBOARDS
-// ==========================================
+// BUILD THE TWO KEYBOARDS
 
 const BLACK_NOTES = [1, 3, 6, 8, 10];
 const KEY_COUNT = 37;
@@ -949,7 +925,7 @@ manuals.forEach((manual, manualIndex) => {
     manual.channel = Number(channelSelect.value);
   });
 
-  // Prevent long-press menus, dragging and selection.
+  // Block browser long-press menus on the piano.
   for (const eventName of [
     "contextmenu",
     "selectstart",
