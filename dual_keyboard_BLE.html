@@ -748,7 +748,12 @@ $("bleButton").addEventListener("click", async () => {
       throw new Error("MIDI characteristic is not writable");
     }
 
-    bleCharacteristic = characteristic;
+        // Complete notification setup before marking MIDI ready.
+    if (characteristic.properties.notify) {
+      await characteristic.startNotifications();
+    }
+
+
 
     $("bleButton").textContent = "BLE connected";
     $("bleButton").classList.add("connected");
