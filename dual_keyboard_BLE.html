@@ -623,19 +623,8 @@ function sendMidi(status, data1, data2) {
       data2
     ]);
 
-    if (
-      characteristic.properties.writeWithoutResponse &&
-      characteristic.writeValueWithoutResponse
-    ) {
-      await characteristic.writeValueWithoutResponse(packet);
-    } else if (
-      characteristic.properties.write &&
-      characteristic.writeValueWithResponse
-    ) {
-      await characteristic.writeValueWithResponse(packet);
-    } else {
-      await characteristic.writeValue(packet);
-    }
+        // Restore the write call used in the working version.
+    await characteristic.writeValue(packet);
 
     if (isNoteOn) {
       log(
