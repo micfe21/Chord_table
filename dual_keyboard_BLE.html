@@ -623,8 +623,12 @@ function sendMidi(status, data1, data2) {
       data2
     ]);
 
-        // Restore the write call used in the working version.
-    await characteristic.writeValue(packet);
+    // Use the write method the device prefers
+    if (characteristic.properties.writeWithoutResponse) {
+      await characteristic.writeValueWithoutResponse(packet);
+    } else {
+      await characteristic.writeValue(packet);
+    }
 
     if (isNoteOn) {
       log(
@@ -729,8 +733,7 @@ $("bleButton").addEventListener("click", async () => {
 
         panic();
         log("BLE disconnected.");
-      },
-      { once: true }
+      }
     );
 
     log("Connecting to " + (bleDevice.name || "BLE device"));
@@ -748,12 +751,13 @@ $("bleButton").addEventListener("click", async () => {
       throw new Error("MIDI characteristic is not writable");
     }
 
-        // Complete notification setup before marking MIDI ready.
+    // ✅ THE FIX: Assign the characteristic so sendMidi can use it
+    bleCharacteristic = characteristic;
+
+    // Complete notification setup before marking MIDI ready.
     if (characteristic.properties.notify) {
       await characteristic.startNotifications();
     }
-
-
 
     $("bleButton").textContent = "BLE connected";
     $("bleButton").classList.add("connected");
