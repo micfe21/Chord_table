@@ -1187,6 +1187,30 @@ function sendMidi(
     );
   }
 }
+  // Prevent long-press browser menus on the piano keyboards.
+document.querySelectorAll('.keyboard').forEach(keyboard => {
+  keyboard.addEventListener('contextmenu', event => {
+    event.preventDefault();
+  });
+
+  keyboard.addEventListener('selectstart', event => {
+    event.preventDefault();
+  });
+
+  keyboard.addEventListener('dragstart', event => {
+    event.preventDefault();
+  });
+
+  // Cancel default pointer behaviour without stopping
+  // the existing note-playing event handlers.
+  keyboard.addEventListener('pointerdown', event => {
+    event.preventDefault();
+  }, { passive: false });
+
+  keyboard.style.userSelect = 'none';
+  keyboard.style.webkitUserSelect = 'none';
+  keyboard.style.webkitTouchCallout = 'none';
+});
 </script>
 
 </body>
