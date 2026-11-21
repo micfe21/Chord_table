@@ -4,6 +4,91 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dual Manual Piano</title>
+  /* Compact performance layout */
+main {
+  padding: 3px;
+  gap: 3px;
+}
+
+header {
+  flex-wrap: nowrap;
+  gap: 5px;
+  padding: 3px 5px;
+  min-height: 34px;
+}
+
+header button {
+  padding: 5px 8px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+#settingsToggle {
+  margin-left: auto;
+}
+
+#settingsPanel {
+  flex: none;
+  padding: 7px;
+  background: #20252c;
+  border-radius: 6px;
+}
+
+#settingsPanel[hidden] {
+  display: none;
+}
+
+#settingsPanel .settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+#settingsPanel input[type="range"] {
+  width: 95px;
+}
+
+#status {
+  min-height: 18px;
+  height: 18px;
+  padding: 2px 5px;
+  font-size: 10px;
+  line-height: 14px;
+}
+
+section {
+  padding: 3px;
+  gap: 2px;
+}
+
+.controls {
+  flex-wrap: nowrap;
+  min-height: 22px;
+  gap: 5px;
+}
+
+.controls strong {
+  font-size: 10px;
+}
+
+.controls label {
+  font-size: 10px;
+}
+
+.controls select {
+  padding: 1px 3px;
+  font-size: 10px;
+}
+
+/* Manual volume sliders move into Settings. */
+.controls > label:last-child {
+  display: none;
+}
+
+.keyboard {
+  min-height: 0;
+}
 
 <style>
 * { box-sizing: border-box; }
