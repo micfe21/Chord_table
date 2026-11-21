@@ -3,411 +3,817 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Dual Manual Pro Controller</title>
+<title>Dual Manual Piano</title>
 
 <style>
-  :root {
-    --bg: #121417; --panel: #1c2026; --text: #e8eaed;
-    --active: #ffcc4d;
-    --white-top: #fdfdfd; --white-bottom: #dcdcdc;
-    --black-top: #2a2a2a; --black-bottom: #111111;
-  }
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0; height: 100%;
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    overflow: hidden; touch-action: none;
-  }
-  .app-container { display: flex; flex-direction: column; height: 100dvh; padding: 4px; gap: 4px; }
-  
-  header { 
-    display: flex; align-items: center; gap: 6px; 
-    background: var(--panel); padding: 4px 8px; border-radius: 8px; 
-    flex-shrink: 0; border: 1px solid #31363d;
-  }
-  .spacer { flex-grow: 1; }
-  .vol-control { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #a8b0ba; }
-  input[type="range"] { width: 60px; accent-color: var(--active); }
-  select, button { 
-    background: #121417; color: var(--text); border: 1px solid #444; 
-    border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 600;
-  }
-  button { cursor: pointer; }
-  button:active { background: #444; }
-  .danger { background: #c62828; border-color: #c62828; color: white; }
-  .ble-btn { background: #0984e3; border-color: #0984e3; color: white; }
-  .ble-btn.connected { background: #2e7d32; border-color: #2e7d32; }
-  
-  /* Debug Console */
-  .debug-bar { 
-    background: #000; color: #0f0; font-family: monospace; font-size: 11px; 
-    padding: 4px 8px; border-radius: 4px; height: 24px; overflow: hidden;
-    white-space: nowrap; text-overflow: ellipsis; flex-shrink: 0;
-  }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
-  .manuals-container { display: flex; flex-direction: column; flex-grow: 1; gap: 4px; min-height: 0; }
-  .manual { 
-    background: var(--panel); border-radius: 8px; padding: 4px; 
-    display: flex; flex-direction: column; flex: 1; min-height: 0; border: 1px solid #31363d;
-  }
-  .manual-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-shrink: 0; padding: 0 4px; }
-  .manual-title { font-weight: 700; font-size: 12px; color: #a8b0ba; margin-right: auto; }
-  .header-controls { display: flex; gap: 8px; align-items: center; font-size: 11px; color: #a8b0ba; }
-  .header-controls select { padding: 2px 4px; font-size: 11px; }
-  
-  .keyboard { 
-    position: relative; display: flex; flex-grow: 1; border-radius: 6px; 
-    overflow: hidden; user-select: none; touch-action: none; background: #000;
-    box-shadow: inset 0 5px 10px rgba(0,0,0,0.5);
-  }
-  .white-key { 
-    flex: 1; background: linear-gradient(to bottom, var(--white-top) 0%, var(--white-bottom) 100%);
-    border-right: 1px solid #999; border-bottom: 3px solid #bbb;
-    position: relative; border-radius: 0 0 4px 4px; z-index: 1;
-  }
-  .white-key:last-child { border-right: none; }
-  .black-key { 
-    position: absolute; top: 0; background: linear-gradient(to bottom, var(--black-top) 0%, var(--black-bottom) 100%);
-    border-radius: 0 0 4px 4px; border-bottom: 3px solid #000; z-index: 2; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6); pointer-events: auto; 
-  }
-  .white-key.active { background: linear-gradient(to bottom, #ffebaa 0%, #ffcc4d 100%) !important; border-bottom-color: #d4a32e; }
-  .black-key.active { background: linear-gradient(to bottom, #d4a32e 0%, #ffcc4d 100%) !important; border-bottom-color: #997317; }
-  
-  .key-label { 
-    position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); 
-    font-size: 10px; color: #888; pointer-events: none; font-weight: 600;
-  }
-  .key-label:not(.show-label) { display: none; }
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #121417;
+  color: #e8eaed;
+  font-family: system-ui, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.app {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+  gap: 2px;
+}
+
+/* Compact Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 2px 4px;
+  background: #1c2026;
+  border: 1px solid #343a43;
+  border-radius: 5px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+button, select {
+  padding: 3px 6px;
+  border: 1px solid #49515d;
+  border-radius: 4px;
+  background: #12171d;
+  color: #eee;
+  font: 600 10px system-ui, sans-serif;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+#pianoButton { background: #69501a; }
+#bleButton { background: #0869a8; }
+#bleButton.connected { background: #287334; }
+#panicButton { background: #ae2727; }
+
+/* Settings Overlay (does not push keyboards down) */
+#settings {
+  position: absolute;
+  top: 35px;
+  right: 5px;
+  width: 320px;
+  z-index: 100;
+  padding: 8px;
+  background: #1c2026;
+  border: 1px solid #49515d;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+
+#settings[hidden] {
+  display: none;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.settings-row + .settings-row {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #343a43;
+}
+
+label {
+  white-space: nowrap;
+  font-size: 10px;
+  color: #b0bac7;
+}
+
+input[type="range"] {
+  width: 70px;
+  vertical-align: middle;
+  accent-color: #ffcc4d;
+}
+
+#midiOutput {
+  max-width: 150px;
+}
+
+/* Manuals & Keyboards */
+.manual {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+  background: #1c2026;
+  border: 1px solid #343a43;
+  border-radius: 5px;
+}
+
+.manual-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 18px;
+  flex-shrink: 0;
+  padding: 0 2px;
+  margin-bottom: 2px;
+}
+
+.manual-title {
+  margin-right: auto;
+  color: #b3bcc8;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.manual-header label {
+  font-size: 9px;
+  color: #8892a0;
+}
+
+.manual-header select {
+  padding: 1px 2px;
+  font-size: 9px;
+  border-radius: 3px;
+}
+
+.keyboard {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000;
+  touch-action: none;
+}
+
+.key {
+  touch-action: none;
+}
+
+.white-key {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  background: linear-gradient(#fff, #e0e0e0);
+  border-right: 1px solid #999;
+  border-bottom: 4px solid #aaa;
+  border-radius: 0 0 3px 3px;
+}
+
+.black-key {
+  position: absolute;
+  top: 0;
+  height: 62%;
+  z-index: 2;
+  background: linear-gradient(#333, #000);
+  border-bottom: 3px solid #000;
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 3px 4px #000a;
+}
+
+.key.active {
+  background: linear-gradient(#ffe8a5, #ffb300);
+  border-bottom-color: #c99521;
+}
+
+.key-label {
+  position: absolute;
+  bottom: 3px;
+  left: 4px;
+  color: #888;
+  font-size: 8px;
+  pointer-events: none;
+}
 </style>
 </head>
-<body>
 
-<div class="app-container">
-  <header>
-    <div class="vol-control">
-      <span>🔊</span>
-      <input type="range" id="volSlider" min="0" max="1" step="0.01" value="0.3">
-    </div>
+<body>
+<div class="app">
+
+  <header class="toolbar">
+    <button id="pianoButton">Load Online Piano</button>
     <div class="spacer"></div>
-    <select id="midiOut"><option value="">USB/Virtual</option></select>
-    <button id="connect">Connect</button>
-    <button id="bleConnect" class="ble-btn">🔵 BLE Connect</button>
-    <button id="panic" class="danger">Panic</button>
+    <button id="bleButton">BLE Connect</button>
+    <button id="panicButton">Panic</button>
+    <button id="settingsButton" aria-expanded="false">Settings</button>
   </header>
 
-  <div class="debug-bar" id="debugBar">System ready...</div>
+  <div id="settings" hidden>
+    <div class="settings-row">
+      <label>
+        Master
+        <input id="masterVolume" type="range" min="0" max="1" step="0.01" value="0.5">
+      </label>
+      <label>
+        <input id="localSound" type="checkbox" checked> Local Sound
+      </label>
+    </div>
 
-  <div class="manuals-container">
-    <section class="manual" id="lowerManual">
-      <div class="manual-header">
-        <div class="manual-title">LOWER</div>
-        <div class="header-controls">
-          <label>Oct <select class="octave"><option value="-1">-1</option><option value="0" selected>0</option><option value="1">+1</option></select></label>
-          <label>Ch <select class="channel"><option value="0" selected>1</option></select></label>
-        </div>
-      </div>
-      <div class="keyboard" data-manual="0"></div>
-    </section>
+    <div class="settings-row">
+      <button id="usbButton">USB MIDI</button>
+      <select id="midiOutput">
+        <option value="">No USB MIDI output</option>
+      </select>
+    </div>
 
-    <section class="manual" id="upperManual">
-      <div class="manual-header">
-        <div class="manual-title">UPPER</div>
-        <div class="header-controls">
-          <label>Oct <select class="octave"><option value="0">0</option><option value="1" selected>+1</option><option value="2">+2</option></select></label>
-          <label>Ch <select class="channel"><option value="1" selected>2</option></select></label>
-        </div>
-      </div>
-      <div class="keyboard" data-manual="1"></div>
-    </section>
+    <div class="settings-row">
+      <label>
+        Upper Vol
+        <input id="upperVolume" type="range" min="0" max="2" step="0.05" value="1">
+        <span id="upperValue">100%</span>
+      </label>
+    </div>
+    <div class="settings-row">
+      <label>
+        Lower Vol
+        <input id="lowerVolume" type="range" min="0" max="2" step="0.05" value="1.5">
+        <span id="lowerValue">150%</span>
+      </label>
+    </div>
+    
+    <div class="settings-row">
+      <button id="testButton" style="width: 100%;">Test MIDI: C4 / Ch 1</button>
+    </div>
   </div>
+
+  <!-- UPPER (Top) -->
+  <section class="manual" id="upperManual">
+    <div class="manual-header">
+      <div class="manual-title">UPPER</div>
+      <label>Oct <select class="octave"></select></label>
+      <label>Ch <select class="channel"></select></label>
+      <label>Keys <select class="keyCount">
+        <option value="25">25</option>
+        <option value="37">37</option>
+        <option value="49">49</option>
+        <option value="61">61</option>
+      </select></label>
+    </div>
+    <div class="keyboard"></div>
+  </section>
+
+  <!-- LOWER (Bottom) -->
+  <section class="manual" id="lowerManual">
+    <div class="manual-header">
+      <div class="manual-title">LOWER</div>
+      <label>Oct <select class="octave"></select></label>
+      <label>Ch <select class="channel"></select></label>
+      <label>Keys <select class="keyCount">
+        <option value="25">25</option>
+        <option value="37">37</option>
+        <option value="49">49</option>
+        <option value="61">61</option>
+      </select></label>
+    </div>
+    <div class="keyboard"></div>
+  </section>
+
 </div>
 
 <script>
-const debugBar = document.getElementById('debugBar');
-function logDebug(msg) {
-  debugBar.textContent = msg;
-}
+"use strict";
 
-// ==========================================
-// 1. LOCAL SYNTH ENGINE
-// ==========================================
-let audioCtx = null;
-let masterGain = null;
-const activeVoices = new Map(); 
+const $ = id => document.getElementById(id);
+// Logging is now routed to the browser console to keep the UI clean
+const log = console.log; 
 
-document.getElementById('volSlider').addEventListener('input', e => {
-  if (masterGain) masterGain.gain.value = Number(e.target.value);
+const manuals = [
+  {
+    root: $("upperManual"),
+    octave: 1,
+    channel: 1,
+    keyCount: 37,
+    volume: 1,
+    bus: null
+  },
+  {
+    root: $("lowerManual"),
+    octave: 0,
+    channel: 0,
+    keyCount: 37,
+    volume: 1.5,
+    bus: null
+  }
+];
+
+$("settingsButton").addEventListener("click", () => {
+  const panel = $("settings");
+  panel.hidden = !panel.hidden;
+  $("settingsButton").textContent = panel.hidden ? "Settings" : "Close";
 });
+
+// ==========================================
+// LOCAL AUDIO (Offline Synth)
+// ==========================================
+
+let audioContext = null;
+let masterGain = null;
+let compressor = null;
+let pianoPlayers = null;
+let pianoLoading = false;
 
 function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = Number(document.getElementById('volSlider').value);
-    masterGain.connect(audioCtx.destination);
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioContext.createGain();
+    masterGain.gain.value = Number($("masterVolume").value);
+
+    compressor = audioContext.createDynamicsCompressor();
+    compressor.threshold.value = -10;
+    compressor.knee.value = 12;
+    compressor.ratio.value = 6;
+
+    masterGain.connect(compressor);
+    compressor.connect(audioContext.destination);
+
+    manuals.forEach(manual => {
+      manual.bus = audioContext.createGain();
+      manual.bus.gain.value = manual.volume;
+      manual.bus.connect(masterGain);
+    });
   }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume().catch(e => log(e.message));
+  }
 }
 
-function playSynthNote(midiNote, velocity) {
-  initAudio();
-  if (activeVoices.has(midiNote)) stopSynthNote(midiNote);
-  const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
-  const osc1 = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc1.type = 'triangle'; osc2.type = 'sine';
-  osc1.frequency.value = freq; osc2.frequency.value = freq * 2; 
-  const now = audioCtx.currentTime;
-  gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime((velocity / 127) * 0.8, now + 0.02);
-  osc1.connect(gain); osc2.connect(gain); gain.connect(masterGain);
-  osc1.start(now); osc2.start(now);
-  activeVoices.set(midiNote, { osc1, osc2, gain });
-}
-
-function stopSynthNote(midiNote) {
-  if (!activeVoices.has(midiNote) || !audioCtx) return;
-  const voice = activeVoices.get(midiNote);
-  const now = audioCtx.currentTime;
-  voice.gain.gain.cancelScheduledValues(now);
-  voice.gain.gain.setValueAtTime(voice.gain.gain.value, now);
-  voice.gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-  voice.osc1.stop(now + 0.35); voice.osc2.stop(now + 0.35);
-  activeVoices.delete(midiNote);
-}
-
-// ==========================================
-// 2. BLUETOOTH MIDI (WEB BLUETOOTH API)
-// ==========================================
-const BLE_MIDI_SERVICE = '03b80e5a-ede8-4b33-a751-6ce34ec4c700';
-const BLE_MIDI_CHARACTERISTIC = '7772e5db-3868-4112-a1a9-f2669d106bf3';
-let bleDevice = null;
-let bleCharacteristic = null;
-
-document.getElementById('bleConnect').addEventListener('click', async () => {
-  if (!navigator.bluetooth) return logDebug('Web Bluetooth not supported.');
-  try {
-    logDebug('Scanning for BLE devices...');
-    bleDevice = await navigator.bluetooth.requestDevice({
-      filters: [{ services: [BLE_MIDI_SERVICE] }],
-      optionalServices: [BLE_MIDI_SERVICE]
-    });
-    
-    bleDevice.addEventListener('gattserverdisconnected', () => {
-      document.getElementById('bleConnect').classList.remove('connected');
-      document.getElementById('bleConnect').textContent = '🔵 BLE Connect';
-      bleCharacteristic = null;
-      logDebug('BLE Disconnected.');
-    });
-
-    logDebug('Connecting to GATT server...');
-    const server = await bleDevice.gatt.connect();
-    const service = await server.getPrimaryService(BLE_MIDI_SERVICE);
-    bleCharacteristic = await service.getCharacteristic(BLE_MIDI_CHARACTERISTIC);
-    
-    document.getElementById('bleConnect').classList.add('connected');
-    document.getElementById('bleConnect').textContent = '🔵 BLE ✓';
-    logDebug('BLE Connected Successfully!');
-  } catch (err) {
-    logDebug('BLE Error: ' + err.message);
+$("masterVolume").addEventListener("input", e => {
+  if (masterGain) {
+    masterGain.gain.setTargetAtTime(Number(e.target.value), audioContext.currentTime, 0.02);
   }
 });
 
-// EXACT Apple-compliant BLE MIDI packet
-function makeBleMidiPacket(bytes) {
-  const ts = performance.now() & 0x1fff;
-  const header = 0x80 | ((ts >> 7) & 0x3f);
-  const tsLow = 0x80 | (ts & 0x7f);
-  // Format: [Header, Timestamp, Status, Data1, Data2]
-  return new Uint8Array([header, tsLow, ...bytes]);
+[
+  ["upperVolume", "upperValue", 0],
+  ["lowerVolume", "lowerValue", 1]
+].forEach(([sliderId, valueId, index]) => {
+  $(sliderId).addEventListener("input", e => {
+    const volume = Number(e.target.value);
+    manuals[index].volume = volume;
+    $(valueId).textContent = Math.round(volume * 100) + "%";
+    if (manuals[index].bus) {
+      manuals[index].bus.gain.setTargetAtTime(volume, audioContext.currentTime, 0.02);
+    }
+  });
+});
+
+function loadPianoLibrary() {
+  if (window.Soundfont) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.js";
+    script.onload = () => window.Soundfont ? resolve() : reject(new Error("Init failed"));
+    script.onerror = () => { script.remove(); reject(new Error("Download failed")); };
+    document.head.appendChild(script);
+  });
+}
+
+$("pianoButton").addEventListener("click", async () => {
+  initAudio();
+  if (pianoLoading) return;
+  if (pianoPlayers) { alert("Online Grand Piano already loaded."); return; }
+
+  pianoLoading = true;
+  $("pianoButton").disabled = true;
+  $("pianoButton").textContent = "Loading...";
+
+  try {
+    await loadPianoLibrary();
+    pianoPlayers = await Promise.all(
+      manuals.map(manual =>
+        Soundfont.instrument(audioContext, "acoustic_grand_piano", {
+          soundfont: "MusyngKite", format: "mp3", destination: manual.bus, release: 0.35
+        })
+      )
+    );
+    $("pianoButton").textContent = "Piano Ready";
+  } catch (error) {
+    $("pianoButton").textContent = "Retry Piano";
+    log("Piano failed: " + error.message);
+  } finally {
+    pianoLoading = false;
+    $("pianoButton").disabled = false;
+  }
+});
+
+function createVoice(note, manualIndex) {
+  if (!$("localSound").checked) return null;
+  initAudio();
+
+  if (pianoPlayers) {
+    const voice = pianoPlayers[manualIndex].play(note, audioContext.currentTime, { gain: 0.45 });
+    return () => voice.stop();
+  }
+
+  // Built-in Offline Synth
+  const now = audioContext.currentTime;
+  const freq = 440 * Math.pow(2, (note - 69) / 12);
+  
+  const osc1 = audioContext.createOscillator();
+  const osc2 = audioContext.createOscillator();
+  const osc3 = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  const filter = audioContext.createBiquadFilter();
+  
+  osc1.type = "triangle";
+  osc2.type = "sine";
+  osc3.type = "sawtooth";
+  
+  osc1.frequency.value = freq;
+  osc2.frequency.value = freq;
+  osc3.frequency.value = freq * 2;
+  
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(freq * 5, now);
+  filter.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 1.5);
+  
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.4, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.05, now + 2.0);
+  
+  osc1.connect(filter);
+  osc2.connect(filter);
+  osc3.connect(filter);
+  filter.connect(gain);
+  gain.connect(manuals[manualIndex].bus);
+  
+  osc1.start(now); osc2.start(now); osc3.start(now);
+  
+  return () => {
+    const stopTime = audioContext.currentTime;
+    gain.gain.cancelScheduledValues(stopTime);
+    gain.gain.setValueAtTime(gain.gain.value, stopTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, stopTime + 0.3);
+    
+    osc1.stop(stopTime + 0.3); osc2.stop(stopTime + 0.3); osc3.stop(stopTime + 0.3);
+    
+    osc1.onended = () => {
+      osc1.disconnect(); osc2.disconnect(); osc3.disconnect(); filter.disconnect(); gain.disconnect();
+    };
+  };
 }
 
 // ==========================================
-// 3. WEB MIDI & KEYBOARD LOGIC
+// MIDI OUTPUT
 // ==========================================
-const NUM_KEYS = 37; 
-const BLACK_SEMITONES = [1, 3, 6, 8, 10];
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 let midiAccess = null;
 let selectedOutput = null;
-const activePointers = new Map();
+const BLE_SERVICE = "03b80e5a-ede8-4b33-a751-6ce34ec4c700";
+const BLE_CHARACTERISTIC = "7772e5db-3868-4112-a1a9-f2669d106bf3";
+let bleDevice = null;
+let bleCharacteristic = null;
+let bleConnecting = false;
+let bleQueue = Promise.resolve();
 
-const manuals = [
-  { octave: 0, channel: 0, element: document.querySelector('[data-manual="0"]') },
-  { octave: 1, channel: 1, element: document.querySelector('[data-manual="1"]') }
-];
+function sendMidi(status, data1, data2) {
+  const isNoteOn = (status & 0xf0) === 0x90 && data2 > 0;
 
-const midiOutSelect = document.getElementById('midiOut');
-
-document.getElementById('connect').addEventListener('click', () => requestMidi(true));
-document.getElementById('panic').addEventListener('click', panic);
-
-document.querySelectorAll('.octave').forEach((sel, i) => {
-  sel.addEventListener('change', e => manuals[i].octave = Number(e.target.value));
-});
-document.querySelectorAll('.channel').forEach((sel, i) => {
-  sel.addEventListener('change', e => manuals[i].channel = Number(e.target.value));
-});
-
-manuals.forEach((manual, mIdx) => {
-  const kb = manual.element;
-  kb.innerHTML = '';
-  let whiteCount = 0;
-  for (let i = 0; i < NUM_KEYS; i++) {
-    if (!BLACK_SEMITONES.includes(i % 12)) whiteCount++;
+  if (selectedOutput) {
+    try { selectedOutput.send([status, data1, data2]); } 
+    catch (error) { log("USB MIDI error: " + error.message); }
   }
 
-  for (let i = 0; i < NUM_KEYS; i++) {
-    if (!BLACK_SEMITONES.includes(i % 12)) {
-      const key = document.createElement('div');
-      key.className = 'white-key';
-      key.dataset.semitone = i;
-      const noteName = NOTE_NAMES[i % 12];
-      const pitchOctave = Math.floor(((manual.octave + 4) * 12 + i) / 12) - 1;
-      const isC = noteName === 'C';
-      key.innerHTML = `<div class="key-label ${isC ? 'show-label' : ''}">${noteName}${isC ? pitchOctave : ''}</div>`;
-      kb.appendChild(key);
+  const characteristic = bleCharacteristic;
+  if (!characteristic) return;
+
+  bleQueue = bleQueue.then(async () => {
+    if (characteristic !== bleCharacteristic) return;
+
+    const timestamp = Math.floor(performance.now()) & 0x1fff;
+    const packet = new Uint8Array([
+      0x80 | ((timestamp >> 7) & 0x3f),
+      0x80 | (timestamp & 0x7f),
+      status, data1, data2
+    ]);
+
+    if (characteristic.properties.writeWithoutResponse) {
+      await characteristic.writeValueWithoutResponse(packet);
+    } else {
+      await characteristic.writeValue(packet);
     }
+  }).catch(error => log("BLE write error: " + error.message));
+}
+
+function updatePorts() {
+  const previousId = $("midiOutput").value;
+  $("midiOutput").replaceChildren(new Option("No USB MIDI output", ""));
+
+  for (const output of midiAccess.outputs.values()) {
+    $("midiOutput").add(new Option(output.name || output.id, output.id));
   }
 
-  const whiteWidthPercent = 100 / whiteCount;
-  const blackWidthPercent = whiteWidthPercent * 0.65;
-
-  for (let i = 0; i < NUM_KEYS; i++) {
-    const semitone = i % 12;
-    if (BLACK_SEMITONES.includes(semitone)) {
-      const octave = Math.floor(i / 12);
-      let whiteIndexInOctave = 0;
-      if (semitone === 1) whiteIndexInOctave = 0;
-      else if (semitone === 3) whiteIndexInOctave = 1;
-      else if (semitone === 6) whiteIndexInOctave = 3;
-      else if (semitone === 8) whiteIndexInOctave = 4;
-      else if (semitone === 10) whiteIndexInOctave = 5;
-
-      const absoluteWhiteIndex = octave * 7 + whiteIndexInOctave;
-      const leftPercent = (absoluteWhiteIndex * whiteWidthPercent) + (whiteWidthPercent * 0.675);
-
-      const key = document.createElement('div');
-      key.className = 'black-key';
-      key.dataset.semitone = i;
-      key.style.left = leftPercent + '%';
-      key.style.width = blackWidthPercent + '%';
-      key.style.height = '62%'; 
-      kb.appendChild(key);
-    }
-  }
-
-  kb.addEventListener('pointerdown', e => { kb.setPointerCapture(e.pointerId); handlePointer(e, mIdx); });
-  kb.addEventListener('pointermove', e => { if (activePointers.has(e.pointerId)) handlePointer(e, mIdx); });
-  kb.addEventListener('pointerup', e => releasePointer(e.pointerId));
-  kb.addEventListener('pointercancel', e => releasePointer(e.pointerId));
-});
-
-function handlePointer(e, mIdx) {
-  const target = document.elementFromPoint(e.clientX, e.clientY);
-  const keyElement = target?.closest('.white-key, .black-key');
-  if (!keyElement) return;
-
-  const semitone = Number(keyElement.dataset.semitone);
-  const manual = manuals[mIdx];
-  const midiNote = (manual.octave + 4) * 12 + semitone; 
-  
-  if (activePointers.has(e.pointerId)) {
-    const old = activePointers.get(e.pointerId);
-    if (old.midiNote === midiNote) return; 
-    releaseNote(old.midiNote, mIdx, old.element);
-  }
-
-  keyElement.classList.add('active');
-  playSynthNote(midiNote, 100);
-  sendMidi(0x90 | manual.channel, midiNote, 100);
-  activePointers.set(e.pointerId, { midiNote, element: keyElement, mIdx });
+  $("midiOutput").value = midiAccess.outputs.has(previousId) ? previousId : "";
+  selectedOutput = midiAccess.outputs.get($("midiOutput").value) || null;
 }
 
-function releasePointer(pointerId) {
-  if (!activePointers.has(pointerId)) return;
-  const { midiNote, element, mIdx } = activePointers.get(pointerId);
-  element.classList.remove('active');
-  stopSynthNote(midiNote);
-  sendMidi(0x80 | manuals[mIdx].channel, midiNote, 0);
-  activePointers.delete(pointerId);
-}
-
-function releaseNote(midiNote, mIdx, element) {
-  element.classList.remove('active');
-  stopSynthNote(midiNote);
-  sendMidi(0x80 | manuals[mIdx].channel, midiNote, 0);
-}
-
-function panic() {
-  for (let ch = 0; ch < 16; ch++) sendMidi(0xB0 | ch, 123, 0);
-  document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
-  activePointers.clear();
-  activeVoices.forEach((voice, note) => stopSynthNote(note));
-  logDebug('Panic sent.');
-}
-
-async function requestMidi(showAlert) {
-  if (!navigator.requestMIDIAccess) return;
+$("usbButton").addEventListener("click", async () => {
+  initAudio();
+  if (!navigator.requestMIDIAccess) return alert("Web MIDI unavailable.");
   try {
     midiAccess = await navigator.requestMIDIAccess({ sysex: false });
     updatePorts();
     midiAccess.onstatechange = updatePorts;
-  } catch (err) { }
-}
-
-function updatePorts() {
-  if (!midiAccess) return;
-  const currentVal = midiOutSelect.value;
-  midiOutSelect.innerHTML = '<option value="">USB/Virtual</option>';
-  for (const out of midiAccess.outputs.values()) {
-    const opt = document.createElement('option');
-    opt.value = out.id;
-    opt.textContent = out.name;
-    midiOutSelect.appendChild(opt);
-  }
-  if (midiOutSelect.querySelector(`option[value="${currentVal}"]`)) {
-    midiOutSelect.value = currentVal;
-  } else {
-    selectedOutput = null;
-  }
-}
-
-midiOutSelect.addEventListener('change', e => {
-  if (!midiAccess) return;
-  selectedOutput = midiAccess.outputs.get(e.target.value) || null;
+  } catch (error) { alert("USB MIDI error: " + error.message); }
 });
 
-function sendMidi(status, data1, data2) {
-  let sent = false;
-  
-  // 1. Send via Web MIDI (USB)
-  if (selectedOutput) {
-    selectedOutput.send([status, data1, data2]);
-    sent = true;
-  }
-  
-  // 2. Send via Web Bluetooth
+$("midiOutput").addEventListener("change", () => {
+  panic();
+  selectedOutput = midiAccess?.outputs.get($("midiOutput").value) || null;
+});
+
+$("bleButton").addEventListener("click", async () => {
+  initAudio();
+  if (bleConnecting) return;
+
   if (bleCharacteristic) {
-    const packet = makeBleMidiPacket([status, data1, data2]);
-    bleCharacteristic.writeValue(packet)
-      .then(() => {
-        if (status === 0x90) logDebug(`BLE Sent Note: ${data1} (Vel: ${data2})`);
-      })
-      .catch(err => {
-        logDebug(`BLE Write Error: ${err.message}`);
-      });
-    sent = true;
+    panic();
+    await bleQueue;
+    if (bleDevice?.gatt.connected) bleDevice.gatt.disconnect();
+    return;
   }
 
-  if (!sent && status === 0x90) {
-    logDebug('Note played locally. No MIDI output selected.');
+  if (!navigator.bluetooth) return alert("Web Bluetooth unavailable.");
+
+  bleConnecting = true;
+
+  try {
+    bleDevice = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [BLE_SERVICE]
+    });
+
+    bleDevice.addEventListener("gattserverdisconnected", () => {
+      bleCharacteristic = null;
+      $("bleButton").textContent = "BLE Connect";
+      $("bleButton").classList.remove("connected");
+      panic();
+    });
+
+    const server = await bleDevice.gatt.connect();
+    const service = await server.getPrimaryService(BLE_SERVICE);
+    const characteristic = await service.getCharacteristic(BLE_CHARACTERISTIC);
+
+    bleCharacteristic = characteristic;
+
+    if (characteristic.properties.notify) {
+      await characteristic.startNotifications();
+    }
+
+    $("bleButton").textContent = "BLE Connected";
+    $("bleButton").classList.add("connected");
+  } catch (error) {
+    bleCharacteristic = null;
+    if (bleDevice?.gatt.connected) bleDevice.gatt.disconnect();
+    alert("BLE Error: " + error.message);
+  } finally {
+    bleConnecting = false;
+  }
+});
+
+// ==========================================
+// NOTE TRACKING & SLIDING
+// ==========================================
+
+const activeNotes = new Map();
+const activePointers = new Map();
+const midiCounts = new Map();
+
+function startNote(pointerId, key, manualIndex) {
+  const manual = manuals[manualIndex];
+  const note = 48 + 12 * manual.octave + Number(key.dataset.semitone);
+  const channel = manual.channel;
+  const midiKey = channel + ":" + note;
+
+  const count = midiCounts.get(midiKey) || 0;
+  midiCounts.set(midiKey, count + 1);
+
+  if (count === 0) sendMidi(0x90 | channel, note, 100);
+
+  key.dataset.held = Number(key.dataset.held || 0) + 1;
+  key.classList.add("active");
+
+  let stop = null;
+  try { stop = createVoice(note, manualIndex); } catch (e) {}
+
+  activeNotes.set(pointerId, { note, channel, midiKey, key, stop });
+}
+
+function stopNote(pointerId) {
+  const held = activeNotes.get(pointerId);
+  if (!held) return;
+
+  activeNotes.delete(pointerId);
+  if (held.stop) held.stop();
+
+  const count = (midiCounts.get(held.midiKey) || 1) - 1;
+
+  if (count > 0) {
+    midiCounts.set(held.midiKey, count);
+  } else {
+    midiCounts.delete(held.midiKey);
+    sendMidi(0x80 | held.channel, held.note, 0);
+  }
+
+  held.key.dataset.held = Math.max(0, Number(held.key.dataset.held || 1) - 1);
+  if (Number(held.key.dataset.held) === 0) held.key.classList.remove("active");
+}
+
+let testTimer = null;
+let testRoute = null;
+
+function finishMidiTest() {
+  if (!testRoute) return;
+  clearTimeout(testTimer);
+  const route = testRoute;
+  testRoute = null;
+
+  if (route.output) { try { route.output.send([0x80, 60, 0]); } catch (e) {} }
+  if (route.characteristic && route.characteristic === bleCharacteristic) {
+    const savedOutput = selectedOutput;
+    selectedOutput = null;
+    sendMidi(0x80, 60, 0);
+    selectedOutput = savedOutput;
   }
 }
+
+$("testButton").addEventListener("click", () => {
+  if (!bleCharacteristic && !selectedOutput) return alert("Connect MIDI first.");
+  if (activeNotes.size > 0 || testRoute) return;
+
+  testRoute = { output: selectedOutput, characteristic: bleCharacteristic };
+  sendMidi(0x90, 60, 100);
+  testTimer = setTimeout(finishMidiTest, 700);
+});
+
+function panic() {
+  finishMidiTest();
+  for (const id of [...activeNotes.keys()]) stopNote(id);
+  activePointers.clear();
+
+  for (let channel = 0; channel < 16; channel++) {
+    sendMidi(0xb0 | channel, 64, 0);
+    sendMidi(0xb0 | channel, 123, 0);
+  }
+}
+
+$("panicButton").addEventListener("click", panic);
+$("localSound").addEventListener("change", () => {
+  for (const held of activeNotes.values()) {
+    if (held.stop) { held.stop(); held.stop = null; }
+  }
+});
+
+window.addEventListener("blur", () => { if (activeNotes.size || testRoute) panic(); });
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && (activeNotes.size || testRoute)) panic();
+});
+
+// ==========================================
+// BUILD BOTH KEYBOARDS
+// ==========================================
+
+const BLACK_NOTES = [1, 3, 6, 8, 10];
+
+function updateLabels(manual) {
+  const keyboard = manual.root.querySelector(".keyboard");
+  for (const key of keyboard.querySelectorAll(".white-key")) {
+    const note = 48 + 12 * manual.octave + Number(key.dataset.semitone);
+    key.firstChild.textContent = note % 12 === 0 ? "C" + (Math.floor(note / 12) - 1) : "";
+  }
+}
+
+function buildKeyboard(manual) {
+  const keyboard = manual.root.querySelector(".keyboard");
+  keyboard.innerHTML = ""; 
+  
+  let whiteCount = 0;
+
+  for (let semitone = 0; semitone < manual.keyCount; semitone++) {
+    const isBlack = BLACK_NOTES.includes(semitone % 12);
+    const key = document.createElement("div");
+    key.className = "key " + (isBlack ? "black-key" : "white-key");
+    key.dataset.semitone = semitone;
+
+    if (!isBlack) {
+      whiteCount++;
+      const label = document.createElement("span");
+      label.className = "key-label";
+      key.appendChild(label);
+    }
+    keyboard.appendChild(key);
+  }
+
+  let precedingWhites = 0;
+
+  for (const key of keyboard.children) {
+    if (key.classList.contains("white-key")) {
+      precedingWhites++;
+    } else {
+      key.style.left = ((precedingWhites - 0.325) * 100 / whiteCount) + "%";
+      key.style.width = (65 / whiteCount) + "%";
+    }
+  }
+
+  updateLabels(manual);
+}
+
+manuals.forEach((manual, manualIndex) => {
+  const keyboard = manual.root.querySelector(".keyboard");
+  const octaveSelect = manual.root.querySelector(".octave");
+  const channelSelect = manual.root.querySelector(".channel");
+  const keyCountSelect = manual.root.querySelector(".keyCount");
+
+  for (let octave = -2; octave <= 2; octave++) {
+    octaveSelect.add(new Option(octave > 0 ? "+" + octave : String(octave), octave));
+  }
+  octaveSelect.value = manual.octave;
+
+  for (let channel = 0; channel < 16; channel++) {
+    channelSelect.add(new Option(channel + 1, channel));
+  }
+  channelSelect.value = manual.channel;
+  keyCountSelect.value = manual.keyCount;
+
+  buildKeyboard(manual);
+
+  keyCountSelect.addEventListener("change", () => {
+    panic();
+    manual.keyCount = Number(keyCountSelect.value);
+    buildKeyboard(manual);
+  });
+
+  octaveSelect.addEventListener("change", () => {
+    panic();
+    manual.octave = Number(octaveSelect.value);
+    updateLabels(manual);
+  });
+
+  channelSelect.addEventListener("change", () => {
+    panic();
+    manual.channel = Number(channelSelect.value);
+  });
+
+  keyboard.addEventListener("contextmenu", e => e.preventDefault());
+
+  function movePointer(event) {
+    // Detect the key under the finger/cursor, even when sliding
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".key");
+    const key = target && keyboard.contains(target) ? target : null;
+
+    // If moving to the same key, do nothing
+    if (activePointers.get(event.pointerId) === key) return;
+
+    // Slide off the old key (Note Off)
+    stopNote(event.pointerId);
+    activePointers.set(event.pointerId, key);
+
+    // Slide onto the new key (Note On)
+    if (key) startNote(event.pointerId, key, manualIndex);
+  }
+
+  keyboard.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    initAudio();
+    keyboard.setPointerCapture(event.pointerId);
+    activePointers.set(event.pointerId, null);
+    movePointer(event);
+  }, { passive: false });
+
+  keyboard.addEventListener("pointermove", event => {
+    if (!activePointers.has(event.pointerId)) return;
+    event.preventDefault();
+    movePointer(event);
+  }, { passive: false });
+
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(evtName => {
+    keyboard.addEventListener(evtName, event => {
+      stopNote(event.pointerId);
+      activePointers.delete(event.pointerId);
+    });
+  });
+});
 </script>
+
 </body>
 </html>
