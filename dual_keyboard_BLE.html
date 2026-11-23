@@ -247,7 +247,6 @@ input[type="range"] {
     <div class="settings-row">
       <label>
         Master Volume
-        <!-- Changed default from 0.5 to 1 -->
         <input id="masterVolume" type="range" min="0" max="1.5" step="0.01" value="1">
       </label>
       <label>
@@ -366,11 +365,9 @@ function initAudio() {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = audioContext.createGain();
     
-    // Use the new higher default volume
     masterGain.gain.value = Number($("masterVolume").value);
 
     compressor = audioContext.createDynamicsCompressor();
-    // Softened compressor so it doesn't squash the volume as much
     compressor.threshold.value = -20;
     compressor.knee.value = 20;
     compressor.ratio.value = 4;
@@ -454,11 +451,11 @@ function createVoice(note, manualIndex) {
   initAudio();
 
   if (pianoPlayers) {
-    // Boosted online piano gain from 0.45 to 1.2
+    // Massively boosted the online piano gain to match the synth
     const voice = pianoPlayers[manualIndex].play(
       note, 
       audioContext.currentTime, 
-      { gain: 1.2 } 
+      { gain: 4.0 } 
     );
     return () => voice.stop();
   }
@@ -485,10 +482,10 @@ function createVoice(note, manualIndex) {
   filter.frequency.setValueAtTime(freq * 5, now);
   filter.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 1.5);
   
-  // Boosted synth attack volume to 0.7 to match the louder piano
+  // Reduced synth peak from 0.7 to 0.2 so it matches the real piano sample
   gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.7, now + 0.01); 
-  gain.gain.exponentialRampToValueAtTime(0.1, now + 2.0);
+  gain.gain.linearRampToValueAtTime(0.2, now + 0.01); 
+  gain.gain.exponentialRampToValueAtTime(0.05, now + 2.0);
   
   osc1.connect(filter);
   osc2.connect(filter);
