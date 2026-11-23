@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport"
-      content="width=device-width, initial-scale=1">
-
-<title>Dual Manual Piano — Scroll and Audio Fix</title>
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Dual Manual Piano</title>
 
 <style>
 * {
@@ -33,7 +32,7 @@ html, body {
   gap: 2px;
 }
 
-/* Compact toolbar */
+/* Compact Toolbar */
 .toolbar {
   display: flex;
   align-items: center;
@@ -56,47 +55,30 @@ button, select {
   background: #12171d;
   color: #eee;
   font: 600 10px system-ui, sans-serif;
-}
-
-button {
   cursor: pointer;
-  white-space: nowrap;
 }
 
 button:disabled {
   opacity: 0.6;
 }
 
-#pianoButton {
-  background: #69501a;
-}
+#pianoButton { background: #69501a; }
+#bleButton { background: #0869a8; }
+#bleButton.connected { background: #287334; }
+#panicButton { background: #ae2727; }
 
-#bleButton {
-  background: #0869a8;
-}
-
-#bleButton.connected {
-  background: #287334;
-}
-
-#panicButton {
-  background: #ae2727;
-}
-
-/* Settings overlay: does not shrink the keyboards */
+/* Settings Overlay */
 #settings {
   position: absolute;
-  top: 34px;
+  top: 35px;
   right: 5px;
-  width: min(360px, calc(100vw - 10px));
-  max-height: calc(100dvh - 44px);
-  overflow: auto;
+  width: 320px;
   z-index: 100;
   padding: 8px;
   background: #1c2026;
   border: 1px solid #49515d;
   border-radius: 6px;
-  box-shadow: 0 10px 30px #000c;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
 }
 
 #settings[hidden] {
@@ -111,8 +93,8 @@ button:disabled {
 }
 
 .settings-row + .settings-row {
-  margin-top: 7px;
-  padding-top: 7px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px solid #343a43;
 }
 
@@ -123,46 +105,19 @@ label {
 }
 
 input[type="range"] {
-  width: 80px;
+  width: 70px;
   vertical-align: middle;
   accent-color: #ffcc4d;
 }
 
 #midiOutput {
-  max-width: 180px;
+  max-width: 150px;
 }
 
-.hint {
-  color: #aeb8c6;
-  font-size: 10px;
-  line-height: 1.4;
-}
-
-#status {
-  width: 100%;
-  color: #a7efa7;
-  font-size: 11px;
-  overflow-wrap: anywhere;
-}
-
-#debugLog {
-  width: 100%;
-  max-height: 95px;
-  overflow: auto;
-  margin: 0;
-  padding: 5px;
-  background: #101317;
-  color: #a7efa7;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  font: 10px/1.4 monospace;
-}
-
-/* Manuals */
+/* Manuals & Keyboards */
 .manual {
   flex: 1;
   min-height: 0;
-  min-width: 0;
   display: flex;
   flex-direction: column;
   padding: 2px;
@@ -175,85 +130,64 @@ input[type="range"] {
   display: flex;
   align-items: center;
   gap: 5px;
-  min-height: 21px;
+  min-height: 18px;
   flex-shrink: 0;
   padding: 0 2px;
   margin-bottom: 2px;
   cursor: grab;
-
-  /* Required for reliable custom dragging on touchscreens */
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
 }
 
-.manual-header.dragging {
+.manual-header:active {
   cursor: grabbing;
 }
 
 .manual-title {
-  flex: 1;
-  min-width: 0;
+  margin-right: auto;
   color: #b3bcc8;
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
 }
 
 .manual-header label {
   font-size: 9px;
-  color: #a0aaba;
+  color: #8892a0;
 }
 
 .manual-header select {
   padding: 1px 2px;
   font-size: 9px;
+  border-radius: 3px;
   cursor: pointer;
-  touch-action: manipulation;
 }
 
-.scroll-hint {
-  font-weight: 400;
-  color: #818b99;
-  font-size: 9px;
-}
-
-/* The viewport scrolls; the inner keyboard has a fixed width. */
+/* Scrollable Keyboard Area */
 .keyboard-scroll {
   overflow-x: auto;
   overflow-y: hidden;
   flex: 1;
   min-height: 0;
-  min-width: 0;
   width: 100%;
-  overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #596574 #121417;
 }
 
 .keyboard-scroll::-webkit-scrollbar {
-  height: 7px;
+  height: 8px;
 }
-
 .keyboard-scroll::-webkit-scrollbar-track {
   background: #121417;
+  border-radius: 4px;
 }
-
 .keyboard-scroll::-webkit-scrollbar-thumb {
-  background: #596574;
+  background: #49515d;
   border-radius: 4px;
 }
 
 .keyboard {
   position: relative;
   display: flex;
-  flex-shrink: 0;
-  min-width: 0;
+  min-width: max-content;
   height: 100%;
-  touch-action: none;
-  -webkit-touch-callout: none;
 }
 
 .key {
@@ -302,133 +236,83 @@ input[type="range"] {
 <div class="app">
 
   <header class="toolbar">
-    <button id="pianoButton">Load Piano</button>
+    <button id="pianoButton">Load Online Piano</button>
     <div class="spacer"></div>
     <button id="bleButton">BLE Connect</button>
     <button id="panicButton">Panic</button>
-    <button id="settingsButton"
-            aria-expanded="false"
-            aria-controls="settings">
-      Settings
-    </button>
+    <button id="settingsButton" aria-expanded="false">Settings</button>
   </header>
 
   <div id="settings" hidden>
     <div class="settings-row">
       <label>
-        Master
-        <input id="masterVolume"
-               type="range"
-               min="0" max="1" step="0.01" value="0.5">
+        Master Volume
+        <!-- Changed default from 0.5 to 1 -->
+        <input id="masterVolume" type="range" min="0" max="1.5" step="0.01" value="1">
       </label>
-
       <label>
-        <input id="localSound" type="checkbox" checked>
-        Local Sound
-      </label>
-
-      <button id="soundTestButton">Test Sound</button>
-    </div>
-
-    <div class="settings-row">
-      <label>
-        Upper Vol
-        <input id="upperVolume"
-               type="range"
-               min="0" max="2" step="0.05" value="1">
-        <span id="upperValue">100%</span>
-      </label>
-
-      <label>
-        Lower Vol
-        <input id="lowerVolume"
-               type="range"
-               min="0" max="2" step="0.05" value="1.5">
-        <span id="lowerValue">150%</span>
+        <input id="localSound" type="checkbox" checked> Local Sound
       </label>
     </div>
 
     <div class="settings-row">
       <button id="usbButton">USB MIDI</button>
-
-      <select id="midiOutput" aria-label="USB MIDI output">
+      <select id="midiOutput">
         <option value="">No USB MIDI output</option>
       </select>
-
-      <button id="testButton">Test MIDI: C4 / Ch 1</button>
     </div>
 
     <div class="settings-row">
-      <div id="status" role="status">
-        Scroll/Audio Fix ready.
-      </div>
-
-      <div class="hint">
-        Drag a manual's title strip to scroll.
-        Slide across keys to play.
-        Test Sound bypasses the piano samples and Local Sound checkbox.
-        Volume controls affect Android audio only.
-      </div>
-
-      <pre id="debugLog"></pre>
+      <label>
+        Upper Vol
+        <input id="upperVolume" type="range" min="0" max="2" step="0.05" value="1">
+        <span id="upperValue">100%</span>
+      </label>
+    </div>
+    <div class="settings-row">
+      <label>
+        Lower Vol
+        <input id="lowerVolume" type="range" min="0" max="2" step="0.05" value="1.5">
+        <span id="lowerValue">150%</span>
+      </label>
+    </div>
+    
+    <div class="settings-row">
+      <button id="testButton" style="width: 100%;">Test MIDI: C4 / Ch 1</button>
     </div>
   </div>
 
+  <!-- UPPER (Top) -->
   <section class="manual" id="upperManual">
     <div class="manual-header">
-      <div class="manual-title">
-        UPPER <span class="scroll-hint">— drag to scroll</span>
-      </div>
-
-      <label>
-        Oct <select class="octave" aria-label="Upper octave"></select>
-      </label>
-
-      <label>
-        Ch <select class="channel" aria-label="Upper channel"></select>
-      </label>
-
-      <label>
-        Keys
-        <select class="keyCount" aria-label="Upper key count">
-          <option value="25">25</option>
-          <option value="37">37</option>
-          <option value="49">49</option>
-          <option value="61">61</option>
-        </select>
-      </label>
+      <div class="manual-title">UPPER (Drag to Scroll)</div>
+      <label>Oct <select class="octave"></select></label>
+      <label>Ch <select class="channel"></select></label>
+      <label>Keys <select class="keyCount">
+        <option value="25">25</option>
+        <option value="37">37</option>
+        <option value="49">49</option>
+        <option value="61">61</option>
+      </select></label>
     </div>
-
     <div class="keyboard-scroll">
       <div class="keyboard"></div>
     </div>
   </section>
 
+  <!-- LOWER (Bottom) -->
   <section class="manual" id="lowerManual">
     <div class="manual-header">
-      <div class="manual-title">
-        LOWER <span class="scroll-hint">— drag to scroll</span>
-      </div>
-
-      <label>
-        Oct <select class="octave" aria-label="Lower octave"></select>
-      </label>
-
-      <label>
-        Ch <select class="channel" aria-label="Lower channel"></select>
-      </label>
-
-      <label>
-        Keys
-        <select class="keyCount" aria-label="Lower key count">
-          <option value="25">25</option>
-          <option value="37">37</option>
-          <option value="49">49</option>
-          <option value="61">61</option>
-        </select>
-      </label>
+      <div class="manual-title">LOWER (Drag to Scroll)</div>
+      <label>Oct <select class="octave"></select></label>
+      <label>Ch <select class="channel"></select></label>
+      <label>Keys <select class="keyCount">
+        <option value="25">25</option>
+        <option value="37">37</option>
+        <option value="49">49</option>
+        <option value="61">61</option>
+      </select></label>
     </div>
-
     <div class="keyboard-scroll">
       <div class="keyboard"></div>
     </div>
@@ -440,31 +324,7 @@ input[type="range"] {
 "use strict";
 
 const $ = id => document.getElementById(id);
-const logLines = [];
-
-function log(message) {
-  console.log(message);
-  $("status").textContent = message;
-
-  logLines.push(message);
-  if (logLines.length > 30) logLines.shift();
-
-  $("debugLog").textContent = logLines.join("\n");
-  $("debugLog").scrollTop = $("debugLog").scrollHeight;
-}
-
-function reportAudioError(error) {
-  const message = error && error.message
-    ? error.message
-    : String(error);
-
-  console.error(error);
-  log("Audio error: " + message);
-
-  $("settings").hidden = false;
-  $("settingsButton").textContent = "Close";
-  $("settingsButton").setAttribute("aria-expanded", "true");
-}
+const log = console.log; 
 
 const manuals = [
   {
@@ -488,14 +348,7 @@ const manuals = [
 $("settingsButton").addEventListener("click", () => {
   const panel = $("settings");
   panel.hidden = !panel.hidden;
-
-  $("settingsButton").textContent =
-    panel.hidden ? "Settings" : "Close";
-
-  $("settingsButton").setAttribute(
-    "aria-expanded",
-    String(!panel.hidden)
-  );
+  $("settingsButton").textContent = panel.hidden ? "Settings" : "Close";
 });
 
 // ==========================================
@@ -510,22 +363,17 @@ let pianoLoading = false;
 
 function initAudio() {
   if (!audioContext) {
-    const AudioContextClass =
-      window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioContextClass) {
-      throw new Error("Web Audio is unavailable in this browser");
-    }
-
-    audioContext = new AudioContextClass();
-
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = audioContext.createGain();
+    
+    // Use the new higher default volume
     masterGain.gain.value = Number($("masterVolume").value);
 
     compressor = audioContext.createDynamicsCompressor();
-    compressor.threshold.value = -10;
-    compressor.knee.value = 12;
-    compressor.ratio.value = 6;
+    // Softened compressor so it doesn't squash the volume as much
+    compressor.threshold.value = -20;
+    compressor.knee.value = 20;
+    compressor.ratio.value = 4;
 
     masterGain.connect(compressor);
     compressor.connect(audioContext.destination);
@@ -537,38 +385,14 @@ function initAudio() {
     });
   }
 
-  // Called from user interactions to unlock audio.
-  if (
-    audioContext.state !== "running" &&
-    audioContext.state !== "closed"
-  ) {
-    audioContext.resume().catch(reportAudioError);
-  }
-
-  return audioContext;
-}
-
-async function ensureAudioRunning() {
-  initAudio();
-
-  if (audioContext.state !== "running") {
-    await audioContext.resume();
-  }
-
-  if (audioContext.state !== "running") {
-    throw new Error(
-      "Audio context is " + audioContext.state
-    );
+  if (audioContext.state === "suspended") {
+    audioContext.resume().catch(e => log(e.message));
   }
 }
 
-$("masterVolume").addEventListener("input", event => {
+$("masterVolume").addEventListener("input", e => {
   if (masterGain) {
-    masterGain.gain.setTargetAtTime(
-      Number(event.target.value),
-      audioContext.currentTime,
-      0.02
-    );
+    masterGain.gain.setTargetAtTime(Number(e.target.value), audioContext.currentTime, 0.02);
   }
 });
 
@@ -576,88 +400,49 @@ $("masterVolume").addEventListener("input", event => {
   ["upperVolume", "upperValue", 0],
   ["lowerVolume", "lowerValue", 1]
 ].forEach(([sliderId, valueId, index]) => {
-  $(sliderId).addEventListener("input", event => {
-    const volume = Number(event.target.value);
-
+  $(sliderId).addEventListener("input", e => {
+    const volume = Number(e.target.value);
     manuals[index].volume = volume;
     $(valueId).textContent = Math.round(volume * 100) + "%";
-
     if (manuals[index].bus) {
-      manuals[index].bus.gain.setTargetAtTime(
-        volume,
-        audioContext.currentTime,
-        0.02
-      );
+      manuals[index].bus.gain.setTargetAtTime(volume, audioContext.currentTime, 0.02);
     }
   });
 });
 
 function loadPianoLibrary() {
   if (window.Soundfont) return Promise.resolve();
-
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
-
-    script.src =
-      "https://cdn.jsdelivr.net/npm/" +
-      "soundfont-player@0.12.0/dist/soundfont-player.js";
-
-    script.onload = () => {
-      if (window.Soundfont) {
-        resolve();
-      } else {
-        reject(new Error("Piano library did not initialize"));
-      }
-    };
-
-    script.onerror = () => {
-      script.remove();
-      reject(new Error("Piano library download failed"));
-    };
-
+    script.src = "https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.js";
+    script.onload = () => window.Soundfont ? resolve() : reject(new Error("Init failed"));
+    script.onerror = () => { script.remove(); reject(new Error("Download failed")); };
     document.head.appendChild(script);
   });
 }
 
 $("pianoButton").addEventListener("click", async () => {
+  initAudio();
   if (pianoLoading) return;
+  if (pianoPlayers) { alert("Online Grand Piano already loaded."); return; }
+
+  pianoLoading = true;
+  $("pianoButton").disabled = true;
+  $("pianoButton").textContent = "Loading...";
 
   try {
-    await ensureAudioRunning();
-
-    if (pianoPlayers) {
-      log("Piano ready. Audio state: " + audioContext.state);
-      return;
-    }
-
-    pianoLoading = true;
-    $("pianoButton").disabled = true;
-    $("pianoButton").textContent = "Loading...";
-    log("Loading piano samples. Internet is required.");
-
     await loadPianoLibrary();
-
-    const players = await Promise.all(
+    pianoPlayers = await Promise.all(
       manuals.map(manual =>
-        Soundfont.instrument(
-          audioContext,
-          "acoustic_grand_piano",
-          {
-            soundfont: "MusyngKite",
-            format: "mp3",
-            destination: manual.bus,
-            release: 0.35
-          }
-        )
+        Soundfont.instrument(audioContext, "acoustic_grand_piano", {
+          soundfont: "MusyngKite", format: "mp3", destination: manual.bus, release: 0.35
+        })
       )
     );
-
-    pianoPlayers = players;
     $("pianoButton").textContent = "Piano Ready";
-    log("Sampled piano ready. Local Sound must be ticked.");
   } catch (error) {
     $("pianoButton").textContent = "Retry Piano";
-    reportAudioError(error);
+    log("Piano failed: " + error.message);
   } finally {
     pianoLoading = false;
     $("pianoButton").disabled = false;
@@ -666,141 +451,66 @@ $("pianoButton").addEventListener("click", async () => {
 
 function createVoice(note, manualIndex) {
   if (!$("localSound").checked) return null;
-
   initAudio();
 
   if (pianoPlayers) {
+    // Boosted online piano gain from 0.45 to 1.2
     const voice = pianoPlayers[manualIndex].play(
-      note,
-      audioContext.currentTime,
-      { gain: 0.45 }
+      note, 
+      audioContext.currentTime, 
+      { gain: 1.2 } 
     );
-
-    let stopped = false;
-
-    return () => {
-      if (stopped) return;
-      stopped = true;
-      voice.stop();
-    };
+    return () => voice.stop();
   }
 
-  // Offline fallback synth.
+  // Built-in Offline Synth
   const now = audioContext.currentTime;
-  const frequency = 440 * Math.pow(2, (note - 69) / 12);
-
+  const freq = 440 * Math.pow(2, (note - 69) / 12);
+  
   const osc1 = audioContext.createOscillator();
   const osc2 = audioContext.createOscillator();
   const osc3 = audioContext.createOscillator();
-
   const gain = audioContext.createGain();
   const filter = audioContext.createBiquadFilter();
-
+  
   osc1.type = "triangle";
   osc2.type = "sine";
   osc3.type = "sawtooth";
-
-  osc1.frequency.value = frequency;
-  osc2.frequency.value = frequency;
-  osc3.frequency.value = frequency * 2;
-
-  const nyquistLimit = audioContext.sampleRate * 0.49;
-
+  
+  osc1.frequency.value = freq;
+  osc2.frequency.value = freq;
+  osc3.frequency.value = freq * 2;
+  
   filter.type = "lowpass";
-  filter.frequency.setValueAtTime(
-    Math.min(frequency * 5, nyquistLimit),
-    now
-  );
-
-  filter.frequency.exponentialRampToValueAtTime(
-    Math.min(frequency * 1.5, nyquistLimit),
-    now + 1.5
-  );
-
+  filter.frequency.setValueAtTime(freq * 5, now);
+  filter.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 1.5);
+  
+  // Boosted synth attack volume to 0.7 to match the louder piano
   gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.18, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.035, now + 2);
-
+  gain.gain.linearRampToValueAtTime(0.7, now + 0.01); 
+  gain.gain.exponentialRampToValueAtTime(0.1, now + 2.0);
+  
   osc1.connect(filter);
   osc2.connect(filter);
   osc3.connect(filter);
   filter.connect(gain);
   gain.connect(manuals[manualIndex].bus);
-
-  osc1.start(now);
-  osc2.start(now);
-  osc3.start(now);
-
-  let stopped = false;
-
+  
+  osc1.start(now); osc2.start(now); osc3.start(now);
+  
   return () => {
-    if (stopped) return;
-    stopped = true;
-
-    const time = audioContext.currentTime;
-    const parameter = gain.gain;
-
-    if (typeof parameter.cancelAndHoldAtTime === "function") {
-      parameter.cancelAndHoldAtTime(time);
-    } else {
-      const current = parameter.value;
-      parameter.cancelScheduledValues(time);
-      parameter.setValueAtTime(Math.max(current, 0.0001), time);
-    }
-
-    parameter.setTargetAtTime(0, time, 0.06);
-
-    osc1.stop(time + 0.4);
-    osc2.stop(time + 0.4);
-    osc3.stop(time + 0.4);
-
+    const stopTime = audioContext.currentTime;
+    gain.gain.cancelScheduledValues(stopTime);
+    gain.gain.setValueAtTime(gain.gain.value, stopTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, stopTime + 0.3);
+    
+    osc1.stop(stopTime + 0.3); osc2.stop(stopTime + 0.3); osc3.stop(stopTime + 0.3);
+    
     osc1.onended = () => {
-      osc1.disconnect();
-      osc2.disconnect();
-      osc3.disconnect();
-      filter.disconnect();
-      gain.disconnect();
+      osc1.disconnect(); osc2.disconnect(); osc3.disconnect(); filter.disconnect(); gain.disconnect();
     };
   };
 }
-
-// Test tone bypasses samples and per-manual buses.
-$("soundTestButton").addEventListener("click", async () => {
-  try {
-    await ensureAudioRunning();
-
-    if (Number($("masterVolume").value) === 0) {
-      throw new Error("Master volume is zero");
-    }
-
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    const now = audioContext.currentTime;
-
-    oscillator.type = "sine";
-    oscillator.frequency.value = 440;
-
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.2, now + 0.02);
-    gain.gain.setValueAtTime(0.2, now + 0.45);
-    gain.gain.linearRampToValueAtTime(0, now + 0.55);
-
-    oscillator.connect(gain);
-    gain.connect(masterGain);
-
-    oscillator.onended = () => {
-      oscillator.disconnect();
-      gain.disconnect();
-    };
-
-    oscillator.start(now);
-    oscillator.stop(now + 0.6);
-
-    log("Test tone scheduled. Audio state: " + audioContext.state);
-  } catch (error) {
-    reportAudioError(error);
-  }
-});
 
 // ==========================================
 // MIDI OUTPUT
@@ -808,25 +518,19 @@ $("soundTestButton").addEventListener("click", async () => {
 
 let midiAccess = null;
 let selectedOutput = null;
-
-const BLE_SERVICE =
-  "03b80e5a-ede8-4b33-a751-6ce34ec4c700";
-
-const BLE_CHARACTERISTIC =
-  "7772e5db-3868-4112-a1a9-f2669d106bf3";
-
+const BLE_SERVICE = "03b80e5a-ede8-4b33-a751-6ce34ec4c700";
+const BLE_CHARACTERISTIC = "7772e5db-3868-4112-a1a9-f2669d106bf3";
 let bleDevice = null;
 let bleCharacteristic = null;
 let bleConnecting = false;
 let bleQueue = Promise.resolve();
 
 function sendMidi(status, data1, data2) {
+  const isNoteOn = (status & 0xf0) === 0x90 && data2 > 0;
+
   if (selectedOutput) {
-    try {
-      selectedOutput.send([status, data1, data2]);
-    } catch (error) {
-      log("USB MIDI error: " + error.message);
-    }
+    try { selectedOutput.send([status, data1, data2]); } 
+    catch (error) { log("USB MIDI error: " + error.message); }
   }
 
   const characteristic = bleCharacteristic;
@@ -835,94 +539,60 @@ function sendMidi(status, data1, data2) {
   bleQueue = bleQueue.then(async () => {
     if (characteristic !== bleCharacteristic) return;
 
-    const timestamp =
-      Math.floor(performance.now()) & 0x1fff;
-
+    const timestamp = Math.floor(performance.now()) & 0x1fff;
     const packet = new Uint8Array([
       0x80 | ((timestamp >> 7) & 0x3f),
       0x80 | (timestamp & 0x7f),
-      status,
-      data1,
-      data2
+      status, data1, data2
     ]);
 
-    // Retains the write preference in your supplied file.
-    if (
-      characteristic.properties.writeWithoutResponse &&
-      characteristic.writeValueWithoutResponse
-    ) {
+    if (characteristic.properties.writeWithoutResponse) {
       await characteristic.writeValueWithoutResponse(packet);
     } else {
       await characteristic.writeValue(packet);
     }
-  }).catch(error => {
-    log("BLE write error: " + error.message);
-  });
+  }).catch(error => log("BLE write error: " + error.message));
 }
 
 function updatePorts() {
   const previousId = $("midiOutput").value;
-
-  $("midiOutput").replaceChildren(
-    new Option("No USB MIDI output", "")
-  );
+  $("midiOutput").replaceChildren(new Option("No USB MIDI output", ""));
 
   for (const output of midiAccess.outputs.values()) {
-    $("midiOutput").add(
-      new Option(output.name || output.id, output.id)
-    );
+    $("midiOutput").add(new Option(output.name || output.id, output.id));
   }
 
-  $("midiOutput").value =
-    midiAccess.outputs.has(previousId) ? previousId : "";
-
-  selectedOutput =
-    midiAccess.outputs.get($("midiOutput").value) || null;
+  $("midiOutput").value = midiAccess.outputs.has(previousId) ? previousId : "";
+  selectedOutput = midiAccess.outputs.get($("midiOutput").value) || null;
 }
 
 $("usbButton").addEventListener("click", async () => {
-  if (!navigator.requestMIDIAccess) {
-    log("Web MIDI unavailable. BLE Connect is separate.");
-    return;
-  }
-
+  initAudio();
+  if (!navigator.requestMIDIAccess) return alert("Web MIDI unavailable.");
   try {
-    midiAccess = await navigator.requestMIDIAccess({
-      sysex: false
-    });
-
+    midiAccess = await navigator.requestMIDIAccess({ sysex: false });
     updatePorts();
     midiAccess.onstatechange = updatePorts;
-    log("USB MIDI ready. Select an output.");
-  } catch (error) {
-    log("USB MIDI error: " + error.message);
-  }
+  } catch (error) { alert("USB MIDI error: " + error.message); }
 });
 
 $("midiOutput").addEventListener("change", () => {
   panic();
-
-  selectedOutput =
-    midiAccess?.outputs.get($("midiOutput").value) || null;
+  selectedOutput = midiAccess?.outputs.get($("midiOutput").value) || null;
 });
 
 $("bleButton").addEventListener("click", async () => {
+  initAudio();
   if (bleConnecting) return;
 
   if (bleCharacteristic) {
     panic();
     await bleQueue;
-
-    if (bleDevice?.gatt.connected) {
-      bleDevice.gatt.disconnect();
-    }
+    if (bleDevice?.gatt.connected) bleDevice.gatt.disconnect();
     return;
   }
 
-  if (!navigator.bluetooth) {
-    log("Web Bluetooth unavailable.");
-    return;
-  }
+  if (!navigator.bluetooth) return alert("Web Bluetooth unavailable.");
 
   bleConnecting = true;
 
@@ -932,51 +602,36 @@ $("bleButton").addEventListener("click", async () => {
       optionalServices: [BLE_SERVICE]
     });
 
-    bleDevice.addEventListener(
-      "gattserverdisconnected",
-      () => {
-        bleCharacteristic = null;
-        $("bleButton").textContent = "BLE Connect";
-        $("bleButton").classList.remove("connected");
-        panic();
-        log("BLE disconnected.");
-      },
-      { once: true }
-    );
-
-    log("Connecting BLE...");
+    bleDevice.addEventListener("gattserverdisconnected", () => {
+      bleCharacteristic = null;
+      $("bleButton").textContent = "BLE Connect";
+      $("bleButton").classList.remove("connected");
+      panic();
+    });
 
     const server = await bleDevice.gatt.connect();
     const service = await server.getPrimaryService(BLE_SERVICE);
+    const characteristic = await service.getCharacteristic(BLE_CHARACTERISTIC);
 
-    const characteristic =
-      await service.getCharacteristic(BLE_CHARACTERISTIC);
+    bleCharacteristic = characteristic;
 
     if (characteristic.properties.notify) {
       await characteristic.startNotifications();
     }
 
-    bleCharacteristic = characteristic;
-
     $("bleButton").textContent = "BLE Connected";
     $("bleButton").classList.add("connected");
-
-    log("BLE connected: " + (bleDevice.name || "MIDI device"));
   } catch (error) {
     bleCharacteristic = null;
-
-    if (bleDevice?.gatt.connected) {
-      bleDevice.gatt.disconnect();
-    }
-
-    log("BLE error: " + error.message);
+    if (bleDevice?.gatt.connected) bleDevice.gatt.disconnect();
+    alert("BLE Error: " + error.message);
   } finally {
     bleConnecting = false;
   }
 });
 
 // ==========================================
-// NOTE TRACKING
+// NOTE TRACKING & SLIDING
 // ==========================================
 
 const activeNotes = new Map();
@@ -985,38 +640,22 @@ const midiCounts = new Map();
 
 function startNote(pointerId, key, manualIndex) {
   const manual = manuals[manualIndex];
-
-  const note =
-    48 + 12 * manual.octave + Number(key.dataset.semitone);
-
+  const note = 48 + 12 * manual.octave + Number(key.dataset.semitone);
   const channel = manual.channel;
   const midiKey = channel + ":" + note;
 
   const count = midiCounts.get(midiKey) || 0;
   midiCounts.set(midiKey, count + 1);
 
-  if (count === 0) {
-    sendMidi(0x90 | channel, note, 100);
-  }
+  if (count === 0) sendMidi(0x90 | channel, note, 100);
 
   key.dataset.held = Number(key.dataset.held || 0) + 1;
   key.classList.add("active");
 
   let stop = null;
+  try { stop = createVoice(note, manualIndex); } catch (e) {}
 
-  try {
-    stop = createVoice(note, manualIndex);
-  } catch (error) {
-    reportAudioError(error);
-  }
-
-  activeNotes.set(pointerId, {
-    note,
-    channel,
-    midiKey,
-    key,
-    stop
-  });
+  activeNotes.set(pointerId, { note, channel, midiKey, key, stop });
 }
 
 function stopNote(pointerId) {
@@ -1024,14 +663,7 @@ function stopNote(pointerId) {
   if (!held) return;
 
   activeNotes.delete(pointerId);
-
-  if (held.stop) {
-    try {
-      held.stop();
-    } catch (error) {
-      log("Audio release error: " + error.message);
-    }
-  }
+  if (held.stop) held.stop();
 
   const count = (midiCounts.get(held.midiKey) || 1) - 1;
 
@@ -1042,40 +674,21 @@ function stopNote(pointerId) {
     sendMidi(0x80 | held.channel, held.note, 0);
   }
 
-  held.key.dataset.held = Math.max(
-    0,
-    Number(held.key.dataset.held || 1) - 1
-  );
-
-  if (Number(held.key.dataset.held) === 0) {
-    held.key.classList.remove("active");
-  }
+  held.key.dataset.held = Math.max(0, Number(held.key.dataset.held || 1) - 1);
+  if (Number(held.key.dataset.held) === 0) held.key.classList.remove("active");
 }
 
-// Independent MIDI test.
 let testTimer = null;
 let testRoute = null;
 
 function finishMidiTest() {
   if (!testRoute) return;
-
   clearTimeout(testTimer);
-
   const route = testRoute;
   testRoute = null;
 
-  if (route.output) {
-    try {
-      route.output.send([0x80, 60, 0]);
-    } catch (error) {
-      log("Test USB Note Off error: " + error.message);
-    }
-  }
-
-  if (
-    route.characteristic &&
-    route.characteristic === bleCharacteristic
-  ) {
+  if (route.output) { try { route.output.send([0x80, 60, 0]); } catch (e) {} }
+  if (route.characteristic && route.characteristic === bleCharacteristic) {
     const savedOutput = selectedOutput;
     selectedOutput = null;
     sendMidi(0x80, 60, 0);
@@ -1084,120 +697,76 @@ function finishMidiTest() {
 }
 
 $("testButton").addEventListener("click", () => {
-  if (!bleCharacteristic && !selectedOutput) {
-    log("Connect a MIDI output first.");
-    return;
-  }
+  if (!bleCharacteristic && !selectedOutput) return alert("Connect MIDI first.");
+  if (activeNotes.size > 0 || testRoute) return;
 
-  if (activeNotes.size || testRoute) {
-    log("Release the keys and wait before testing MIDI.");
-    return;
-  }
-
-  testRoute = {
-    output: selectedOutput,
-    characteristic: bleCharacteristic
-  };
-
+  testRoute = { output: selectedOutput, characteristic: bleCharacteristic };
   sendMidi(0x90, 60, 100);
   testTimer = setTimeout(finishMidiTest, 700);
-
-  log("MIDI C4/channel 1 queued. This is not receipt confirmation.");
 });
 
 function panic() {
   finishMidiTest();
-
-  for (const id of [...activeNotes.keys()]) {
-    stopNote(id);
-  }
-
+  for (const id of [...activeNotes.keys()]) stopNote(id);
   activePointers.clear();
 
   for (let channel = 0; channel < 16; channel++) {
     sendMidi(0xb0 | channel, 64, 0);
     sendMidi(0xb0 | channel, 123, 0);
   }
-
-  log("All notes released.");
 }
 
 $("panicButton").addEventListener("click", panic);
-
 $("localSound").addEventListener("change", () => {
   for (const held of activeNotes.values()) {
-    if (held.stop) {
-      try {
-        held.stop();
-      } catch (error) {
-        log("Audio release error: " + error.message);
-      }
-
-      held.stop = null;
-    }
+    if (held.stop) { held.stop(); held.stop = null; }
   }
 });
 
-window.addEventListener("blur", () => {
-  if (activeNotes.size || testRoute) panic();
-});
-
+window.addEventListener("blur", () => { if (activeNotes.size || testRoute) panic(); });
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden && (activeNotes.size || testRoute)) {
-    panic();
-  }
+  if (document.hidden && (activeNotes.size || testRoute)) panic();
 });
 
 // ==========================================
-// KEYBOARD BUILDING
+// BUILD BOTH KEYBOARDS
 // ==========================================
 
 const BLACK_NOTES = [1, 3, 6, 8, 10];
-const WHITE_KEY_WIDTH = 48;
+const WHITE_KEY_WIDTH = 48; // Matches CSS
 
 function updateLabels(manual) {
   const keyboard = manual.root.querySelector(".keyboard");
-
+  if (!keyboard) return;
   for (const key of keyboard.querySelectorAll(".white-key")) {
-    const note =
-      48 + 12 * manual.octave + Number(key.dataset.semitone);
-
-    key.firstChild.textContent =
-      note % 12 === 0
-        ? "C" + (Math.floor(note / 12) - 1)
-        : "";
+    const note = 48 + 12 * manual.octave + Number(key.dataset.semitone);
+    if (key.firstChild) {
+      key.firstChild.textContent = note % 12 === 0 ? "C" + (Math.floor(note / 12) - 1) : "";
+    }
   }
 }
 
 function buildKeyboard(manual) {
   const keyboard = manual.root.querySelector(".keyboard");
-  keyboard.replaceChildren();
-
+  if (!keyboard) return;
+  keyboard.innerHTML = ""; 
+  
   let whiteCount = 0;
 
   for (let semitone = 0; semitone < manual.keyCount; semitone++) {
     const isBlack = BLACK_NOTES.includes(semitone % 12);
     const key = document.createElement("div");
-
-    key.className =
-      "key " + (isBlack ? "black-key" : "white-key");
-
+    key.className = "key " + (isBlack ? "black-key" : "white-key");
     key.dataset.semitone = semitone;
 
     if (!isBlack) {
       whiteCount++;
-
       const label = document.createElement("span");
       label.className = "key-label";
       key.appendChild(label);
     }
-
     keyboard.appendChild(key);
   }
-
-  // Explicit width creates real horizontal overflow.
-  keyboard.style.width =
-    (whiteCount * WHITE_KEY_WIDTH) + "px";
 
   let precedingWhites = 0;
 
@@ -1205,46 +774,35 @@ function buildKeyboard(manual) {
     if (key.classList.contains("white-key")) {
       precedingWhites++;
     } else {
-      key.style.left =
-        ((precedingWhites - 0.325) * WHITE_KEY_WIDTH) + "px";
-
-      key.style.width =
-        (WHITE_KEY_WIDTH * 0.65) + "px";
+      key.style.left = ((precedingWhites - 0.325) * WHITE_KEY_WIDTH) + "px";
+      key.style.width = (WHITE_KEY_WIDTH * 0.65) + "px";
     }
   }
 
   updateLabels(manual);
 }
 
-// ==========================================
-// INITIALIZE CONTROLS AND POINTER HANDLING
-// ==========================================
-
-function initializeKeyboards() {
+// Ensure DOM is fully loaded before initializing keyboards
+window.addEventListener("DOMContentLoaded", () => {
   manuals.forEach((manual, manualIndex) => {
-    const scrollContainer =
-      manual.root.querySelector(".keyboard-scroll");
-
+    const scrollContainer = manual.root.querySelector(".keyboard-scroll");
     const keyboard = manual.root.querySelector(".keyboard");
     const header = manual.root.querySelector(".manual-header");
-
+    
     const octaveSelect = manual.root.querySelector(".octave");
     const channelSelect = manual.root.querySelector(".channel");
     const keyCountSelect = manual.root.querySelector(".keyCount");
 
-    for (let octave = -2; octave <= 2; octave++) {
-      octaveSelect.add(new Option(
-        octave > 0 ? "+" + octave : String(octave),
-        octave
-      ));
-    }
+    if (!octaveSelect || !channelSelect || !keyCountSelect || !keyboard) return;
 
+    for (let octave = -2; octave <= 2; octave++) {
+      octaveSelect.add(new Option(octave > 0 ? "+" + octave : String(octave), octave));
+    }
     octaveSelect.value = manual.octave;
 
     for (let channel = 0; channel < 16; channel++) {
       channelSelect.add(new Option(channel + 1, channel));
     }
-
     channelSelect.value = manual.channel;
     keyCountSelect.value = manual.keyCount;
 
@@ -1267,136 +825,71 @@ function initializeKeyboards() {
       manual.channel = Number(channelSelect.value);
     });
 
-    for (const target of [keyboard, header]) {
-      for (const eventName of [
-        "contextmenu",
-        "selectstart",
-        "dragstart"
-      ]) {
-        target.addEventListener(eventName, event => {
-          if (event.target.closest("select")) return;
-          event.preventDefault();
-        });
-      }
-    }
+    keyboard.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Drag the header to pan this manual.
-    let dragPointerId = null;
-    let dragStartX = 0;
-    let dragStartScroll = 0;
+    // Drag the header to pan the keyboard
+    let isDraggingHeader = false;
+    let headerStartX = 0;
+    let headerScrollStart = 0;
 
-    header.addEventListener("pointerdown", event => {
-      if (
-        event.target.closest(
-          "select, button, input, label"
-        )
-      ) {
-        return;
-      }
+    header.addEventListener("pointerdown", e => {
+      if (e.target.closest("select") || e.target.closest("button")) return;
+      isDraggingHeader = true;
+      headerStartX = e.clientX;
+      headerScrollStart = scrollContainer.scrollLeft;
+      header.setPointerCapture(e.pointerId);
+    });
 
-      if (dragPointerId !== null) return;
+    header.addEventListener("pointermove", e => {
+      if (!isDraggingHeader) return;
+      e.preventDefault();
+      const dx = e.clientX - headerStartX;
+      scrollContainer.scrollLeft = headerScrollStart - dx;
+    });
 
-      event.preventDefault();
-
-      dragPointerId = event.pointerId;
-      dragStartX = event.clientX;
-      dragStartScroll = scrollContainer.scrollLeft;
-
-      header.classList.add("dragging");
-      header.setPointerCapture(event.pointerId);
-    }, { passive: false });
-
-    header.addEventListener("pointermove", event => {
-      if (event.pointerId !== dragPointerId) return;
-
-      event.preventDefault();
-
-      const distance = event.clientX - dragStartX;
-      scrollContainer.scrollLeft = dragStartScroll - distance;
-    }, { passive: false });
-
-    function endHeaderDrag(event) {
-      if (event.pointerId !== dragPointerId) return;
-
-      dragPointerId = null;
-      header.classList.remove("dragging");
-
-      if (header.hasPointerCapture(event.pointerId)) {
-        header.releasePointerCapture(event.pointerId);
-      }
-    }
+    const endHeaderDrag = (e) => {
+      if (!isDraggingHeader) return;
+      isDraggingHeader = false;
+      header.releasePointerCapture(e.pointerId);
+    };
 
     header.addEventListener("pointerup", endHeaderDrag);
     header.addEventListener("pointercancel", endHeaderDrag);
-    header.addEventListener("lostpointercapture", endHeaderDrag);
 
-    // Keys play notes instead of scrolling.
     function movePointer(event) {
-      const target = document.elementFromPoint(
-        event.clientX,
-        event.clientY
-      )?.closest(".key");
-
-      const key =
-        target && keyboard.contains(target) ? target : null;
+      const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".key");
+      const key = target && keyboard.contains(target) ? target : null;
 
       if (activePointers.get(event.pointerId) === key) return;
 
       stopNote(event.pointerId);
       activePointers.set(event.pointerId, key);
 
-      if (key) {
-        startNote(event.pointerId, key, manualIndex);
-      }
+      if (key) startNote(event.pointerId, key, manualIndex);
     }
 
     keyboard.addEventListener("pointerdown", event => {
       event.preventDefault();
-
-      try {
-        initAudio();
-      } catch (error) {
-        reportAudioError(error);
-      }
-
+      initAudio();
       keyboard.setPointerCapture(event.pointerId);
       activePointers.set(event.pointerId, null);
-
       movePointer(event);
     }, { passive: false });
 
     keyboard.addEventListener("pointermove", event => {
       if (!activePointers.has(event.pointerId)) return;
-
       event.preventDefault();
       movePointer(event);
     }, { passive: false });
 
-    for (const eventName of [
-      "pointerup",
-      "pointercancel",
-      "lostpointercapture"
-    ]) {
-      keyboard.addEventListener(eventName, event => {
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(evtName => {
+      keyboard.addEventListener(evtName, event => {
         stopNote(event.pointerId);
         activePointers.delete(event.pointerId);
       });
-    }
+    });
   });
-
-  log("Scroll/Audio Fix ready. Open Settings for Test Sound.");
-}
-
-// Works whether this script runs before or after DOM readiness.
-if (document.readyState === "loading") {
-  document.addEventListener(
-    "DOMContentLoaded",
-    initializeKeyboards,
-    { once: true }
-  );
-} else {
-  initializeKeyboards();
-}
+});
 </script>
 
 </body>
